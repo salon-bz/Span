@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spam App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Login -->
+  <div id="loginScreen" class="active">
+    <h2>Bienvenido</h2>
+    <button id="registerBtn">Registrar</button>
+    <p>Usuarios registrados: <span id="userCount">0</span></p>
+  </div>
+
+  <!-- Chat -->
+  <div id="chatScreen" class="hidden">
+    <header>
+      <h2>Chat en Tiempo Real</h2>
+      <button id="openPanel">Abrir Panel</button>
+    </header>
+    <div id="messages"></div>
+  </div>
+
+  <!-- Panel Spam -->
+  <div id="panelScreen" class="hidden">
+    <header>
+      <h2>Panel de Spam</h2>
+    </header>
+    <input type="text" id="spamNumber" placeholder="Número de teléfono">
+    <input type="text" id="spamMessage" placeholder="Mensaje">
+    <input type="text" id="spamReason" placeholder="Motivo del spam">
+    <button id="sendSpam">SPAMEAR</button>
+    <button id="backToChat">Volver al Chat</button>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
