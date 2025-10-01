@@ -1,9 +1,8 @@
-// Import Firebase SDKs
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 import { getDatabase, ref, set, push, onChildAdded, onValue, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
-// Firebase config
+// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBHLckCRt9pbhwwBkp9-G2wWfqGM3Rq9fs",
   authDomain: "miapp-spam.firebaseapp.com",
@@ -30,6 +29,7 @@ const backToChat = document.getElementById("backToChat");
 const sendSpam = document.getElementById("sendSpam");
 
 const userCountEl = document.getElementById("userCount");
+const userCountChatEl = document.getElementById("userCountChat");
 const messagesDiv = document.getElementById("messages");
 
 const spamNumber = document.getElementById("spamNumber");
@@ -38,7 +38,7 @@ const spamReason = document.getElementById("spamReason");
 
 let currentUserId = null;
 
-// Revisar si ya está logueado en localStorage
+// Revisar si ya está logueado
 window.addEventListener("load", () => {
   const savedUser = localStorage.getItem("currentUserId");
   if (savedUser) {
@@ -48,45 +48,41 @@ window.addEventListener("load", () => {
   }
 });
 
-// Función para registrar usuario de forma segura
+// Función de registro anónimo
 async function registerUser() {
   try {
     const userCredential = await signInAnonymously(auth);
     const uid = userCredential.user.uid;
 
-    // Leer contador actual
+    // Contador secuencial
     const counterRef = ref(db, "userCounter");
     const snapshot = await new Promise(resolve => onValue(counterRef, resolve, { onlyOnce: true }));
     const currentCount = snapshot.exists() ? snapshot.val() : 0;
     const newCount = currentCount + 1;
-
-    // Guardar nuevo contador
     await set(counterRef, newCount);
 
-    // Crear ID de usuario secuencial
     currentUserId = "usuario-" + newCount;
 
-    // Guardar usuario en la DB
+    // Guardar usuario
     await set(ref(db, "users/" + currentUserId), { uid: uid, registrado: true });
 
-    // Guardar en localStorage para que no pida login otra vez
     localStorage.setItem("currentUserId", currentUserId);
 
-    // Cambiar de pantalla
     loginScreen.classList.add("hidden");
     chatScreen.classList.remove("hidden");
   } catch (error) {
     console.error("Error al registrar usuario:", error);
-    alert("No se pudo registrar. Revisa tu conexión o reglas de Firebase.");
+    alert("No se pudo registrar. Revisa Auth anónimo o reglas de Firebase.");
   }
 }
 
-// Botón Registrar
 registerBtn.addEventListener("click", registerUser);
 
-// Contador total de usuarios registrados
+// Actualizar contador de usuarios en tiempo real
 onValue(ref(db, "users"), (snapshot) => {
-  userCountEl.textContent = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+  const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+  userCountEl.textContent = count;
+  userCountChatEl.textContent = count;
 });
 
 // Mostrar mensajes en tiempo real
@@ -103,19 +99,17 @@ onChildAdded(ref(db, "messages"), (data) => {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 });
 
-// Abrir panel
+// Panel de spam
 openPanel.addEventListener("click", () => {
   chatScreen.classList.add("hidden");
   panelScreen.classList.remove("hidden");
 });
 
-// Volver al chat
 backToChat.addEventListener("click", () => {
   panelScreen.classList.add("hidden");
   chatScreen.classList.remove("hidden");
 });
 
-// Enviar spam
 sendSpam.addEventListener("click", async () => {
   const number = spamNumber.value.trim();
   const text = spamMessage.value.trim();
