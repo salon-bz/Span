@@ -1,137 +1,188 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
-import { getDatabase, ref, set, push, onChildAdded, onValue, remove } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import { getDatabase, ref, push, set, onChildAdded, onChildRemoved, onValue, query, orderByChild, limitToLast, get, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// Config Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBHLckCRt9pbhwwBkp9-G2wWfqGM3Rq9fs",
   authDomain: "miapp-spam.firebaseapp.com",
   databaseURL: "https://miapp-spam-default-rtdb.firebaseio.com",
   projectId: "miapp-spam",
-  storageBucket: "miapp-spam.appspot.com",
+  storageBucket: "miapp-spam.firebasestorage.app",
   messagingSenderId: "739179855589",
   appId: "1:739179855589:web:42ccf3054897da99231e0c"
 };
 
-// Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const auth = getAuth(app);
 
-// Elementos DOM
-const loginScreen = document.getElementById("loginScreen");
-const chatScreen = document.getElementById("chatScreen");
-const panelScreen = document.getElementById("panelScreen");
+const usersRef = ref(db, 'users');
+const messagesRef = ref(db, 'messages');
 
-const registerBtn = document.getElementById("registerBtn");
-const openPanel = document.getElementById("openPanel");
-const backToChat = document.getElementById("backToChat");
-const sendSpam = document.getElementById("sendSpam");
+const loginCard = document.getElementById('loginCard');
+const chatArea = document.getElementById('chatArea');
+const panelCard = document.getElementById('panelCard');
+const btnRegister = document.getElementById('btnRegister');
+const btnLogout = document.getElementById('btnLogout');
+const statusEl = document.getElementById('status');
+const userCountEl = document.getElementById('userCount');
+const messagesEl = document.getElementById('messages');
+const totalMsgEl = document.getElementById('totalMsg');
+const savedCountEl = document.getElementById('savedCount');
+const openPanelBtn = document.getElementById('openPanel');
+const btnPublish = document.getElementById('btnPublish');
+const btnCancel = document.getElementById('btnCancel');
+const phoneIn = document.getElementById('phone');
+const messageIn = document.getElementById('message');
+const reasonIn = document.getElementById('reason');
+const btnNoti = document.getElementById('btnNoti');
+const notifStatus = document.getElementById('notifStatus');
+const dbStatus = document.getElementById('dbStatus');
 
-const userCountEl = document.getElementById("userCount");
-const userCountChatEl = document.getElementById("userCountChat");
-const messagesDiv = document.getElementById("messages");
+let myId = localStorage.getItem('app_uid') || null;
+let userRef = null;
+let lastPublishAt = 0;
+const MIN_MS_BETWEEN_PUB = 2000;
+const MAX_MESSAGES = 50;
 
-const spamNumber = document.getElementById("spamNumber");
-const spamMessage = document.getElementById("spamMessage");
-const spamReason = document.getElementById("spamReason");
+function uid(){
+  let id = localStorage.getItem('app_uid');
+  if (!id){
+    id = 'u_' + Math.random().toString(36).slice(2,12);
+    localStorage.setItem('app_uid', id);
+  }
+  return id;
+}
+function show(el){ el.classList.remove('hidden'); }
+function hide(el){ el.classList.add('hidden'); }
+function esc(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 
-let currentUserId = null;
+async function registerPresence(){
+  myId = uid();
+  await set(ref(db, 'users/' + myId), { online: true, ts: Date.now() });
+  userRef = ref(db, 'users/' + myId);
+  statusEl.textContent = 'Estado: registrado como ' + myId;
+  btnRegister.classList.add('hidden'); btnLogout.classList.remove('hidden');
+  hide(loginCard); show(chatArea); hide(panelCard);
+}
+async function unregisterPresence(){
+  if (myId){
+    try { await remove(ref(db, 'users/' + myId)); } catch(e){}
+  }
+  localStorage.removeItem('app_uid');
+  myId = null; userRef = null;
+  statusEl.textContent = 'Estado: no registrado';
+  btnRegister.classList.remove('hidden'); btnLogout.classList.add('hidden');
+  show(loginCard); hide(chatArea); hide(panelCard);
+}
 
-// Revisar si ya está logueado
-window.addEventListener("load", () => {
-  const savedUser = localStorage.getItem("currentUserId");
-  if (savedUser) {
-    currentUserId = savedUser;
-    loginScreen.classList.add("hidden");
-    chatScreen.classList.remove("hidden");
+onValue(usersRef, snap => {
+  const v = snap.val() || {};
+  userCountEl.textContent = Object.keys(v).length;
+}, err => { userCountEl.textContent = '0'; });
+
+const q = query(messagesRef, orderByChild('ts'), limitToLast(200));
+onValue(messagesRef, snap=> {
+  totalMsgEl.textContent = snap.numChildren();
+  savedCountEl.textContent = snap.numChildren();
+});
+
+onChildAdded(q, (snap) => {
+  const m = snap.val();
+  appendMessage(snap.key, m);
+  if (Notification.permission === 'granted') {
+    try {
+      const title = 'Nueva publicación';
+      const body = (m.text||'') + (m.reason ? ' — ' + m.reason : '');
+      const n = new Notification(title, { body, tag: snap.key });
+      n.onclick = () => { window.focus(); };
+    } catch(e){}
+  }
+});
+onChildRemoved(messagesRef, (snap) => {
+  const id = 'm_' + snap.key;
+  const el = document.getElementById(id);
+  if (el) el.remove();
+});
+
+function appendMessage(key, m){
+  if (!m) return;
+  if (document.getElementById('m_' + key)) return;
+  const el = document.createElement('div');
+  el.id = 'm_' + key;
+  el.className = 'msg';
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const left = document.createElement('div'); left.textContent = m.phone || '—';
+  const right = document.createElement('div'); right.textContent = new Date(m.ts).toLocaleString();
+  meta.appendChild(left); meta.appendChild(right);
+
+  const body = document.createElement('div');
+  body.className = 'body';
+  body.innerHTML = `<strong>${esc(m.text || '')}</strong>
+    <div class="small" style="margin-top:6px;color:var(--muted)">Motivo: ${esc(m.reason||'')}</div>`;
+
+  const waWrap = document.createElement('div'); waWrap.style.marginTop='8px';
+  const waA = document.createElement('a');
+  waA.href = createWhatsAppLink(m.phone, (m.text||'') + (m.reason ? ' — ' + m.reason : ''));
+  waA.target = '_blank'; waA.rel = 'noopener noreferrer'; waA.className = 'linkish';
+  waA.textContent = 'Abrir WhatsApp';
+  waWrap.appendChild(waA);
+
+  el.appendChild(meta); el.appendChild(body); el.appendChild(waWrap);
+  messagesEl.appendChild(el);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function createWhatsAppLink(phone, text){
+  const p = (phone||'').replace(/\D/g,'');
+  if(!p) return 'javascript:void(0)';
+  return 'https://wa.me/' + encodeURIComponent(p) + '?text=' + encodeURIComponent(text || '');
+}
+
+btnPublish.addEventListener('click', async () => {
+  if (!myId) { alert('Regístrate antes de publicar.'); return; }
+  const phone = phoneIn.value.trim();
+  const text = messageIn.value.trim();
+  const reason = reasonIn.value.trim();
+  if (!phone || !text) { alert('Teléfono y mensaje son obligatorios.'); return; }
+  const now = Date.now();
+  if (now - lastPublishAt < MIN_MS_BETWEEN_PUB) { alert('Espera un momento antes de publicar otra vez.'); return; }
+  if (!confirm('Confirma publicar este mensaje. Uso responsable.')) return;
+  lastPublishAt = now;
+
+  const newRef = push(messagesRef);
+  await set(newRef, { phone, text, reason, author: myId, ts: Date.now() });
+  maintainMessageLimit(MAX_MESSAGES);
+
+  phoneIn.value=''; messageIn.value=''; reasonIn.value='';
+  hide(panelCard); show(chatArea);
+});
+
+btnCancel.addEventListener('click', () => { hide(panelCard); show(chatArea); });
+openPanelBtn.addEventListener('click', () => { hide(chatArea); show(panelCard); phoneIn.focus(); window.scrollTo({ top: 9999, behavior: 'smooth' }); });
+
+btnRegister.addEventListener('click', async () => { await registerPresence(); });
+btnLogout.addEventListener('click', async () => { await unregisterPresence(); });
+
+btnNoti.addEventListener('click', async () => {
+  if (Notification.permission === "granted") {
+    notifStatus.textContent = 'activadas';
+    alert('Ya están activadas');
+  } else if (Notification.permission !== "denied") {
+    const p = await Notification.requestPermission();
+    notifStatus.textContent = (p === 'granted') ? 'activadas' : 'desactivadas';
   }
 });
 
-// Función de registro anónimo
-async function registerUser() {
-  try {
-    const userCredential = await signInAnonymously(auth);
-    const uid = userCredential.user.uid;
-
-    // Contador secuencial
-    const counterRef = ref(db, "userCounter");
-    const snapshot = await new Promise(resolve => onValue(counterRef, resolve, { onlyOnce: true }));
-    const currentCount = snapshot.exists() ? snapshot.val() : 0;
-    const newCount = currentCount + 1;
-    await set(counterRef, newCount);
-
-    currentUserId = "usuario-" + newCount;
-
-    // Guardar usuario
-    await set(ref(db, "users/" + currentUserId), { uid: uid, registrado: true });
-
-    localStorage.setItem("currentUserId", currentUserId);
-
-    loginScreen.classList.add("hidden");
-    chatScreen.classList.remove("hidden");
-  } catch (error) {
-    console.error("Error al registrar usuario:", error);
-    alert("No se pudo registrar. Revisa Auth anónimo o reglas de Firebase.");
+async function maintainMessageLimit(max){
+  const snap = await get(query(messagesRef, orderByChild('ts')));
+  const msgs = snap.val() || {};
+  const keys = Object.keys(msgs);
+  if (keys.length <= max) return;
+  const sorted = keys.sort((a,b) => msgs[a].ts - msgs[b].ts);
+  for (let i=0; i<keys.length - max; i++){
+    await remove(ref(db, 'messages/' + sorted[i]));
   }
 }
 
-registerBtn.addEventListener("click", registerUser);
-
-// Actualizar contador de usuarios en tiempo real
-onValue(ref(db, "users"), (snapshot) => {
-  const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-  userCountEl.textContent = count;
-  userCountChatEl.textContent = count;
-});
-
-// Mostrar mensajes en tiempo real
-onChildAdded(ref(db, "messages"), (data) => {
-  const msg = data.val();
-  const div = document.createElement("div");
-  div.classList.add("message");
-  div.innerHTML = `
-    <p><b>${msg.number}</b>: ${msg.text}</p>
-    <p>Motivo: ${msg.reason}</p>
-    <a href="https://wa.me/${msg.number}?text=${encodeURIComponent(msg.text)}" target="_blank">Abrir en WhatsApp</a>
-  `;
-  messagesDiv.appendChild(div);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
-});
-
-// Panel de spam
-openPanel.addEventListener("click", () => {
-  chatScreen.classList.add("hidden");
-  panelScreen.classList.remove("hidden");
-});
-
-backToChat.addEventListener("click", () => {
-  panelScreen.classList.add("hidden");
-  chatScreen.classList.remove("hidden");
-});
-
-sendSpam.addEventListener("click", async () => {
-  const number = spamNumber.value.trim();
-  const text = spamMessage.value.trim();
-  const reason = spamReason.value.trim();
-
-  if (!number || !text || !reason) return alert("Completa todos los campos");
-
-  try {
-    await push(ref(db, "messages"), { number, text, reason, timestamp: Date.now() });
-    spamNumber.value = "";
-    spamMessage.value = "";
-    spamReason.value = "";
-    panelScreen.classList.add("hidden");
-    chatScreen.classList.remove("hidden");
-  } catch (error) {
-    console.error("Error al enviar mensaje:", error);
-    alert("No se pudo enviar el mensaje. Revisa tu conexión.");
-  }
-});
-
-// Limitar mensajes a 50
-onValue(ref(db, "messages"), (snapshot) => {
-  const data = snapshot.val();
-  if (data && Object.keys(data).length > 50) remove(ref(db, "messages"));
-});
+// Estado de conexión
+dbStatus.textContent = 'Conectado';
