@@ -48,35 +48,41 @@ window.addEventListener("load", () => {
   }
 });
 
-// Botón Registrar → login anónimo
-registerBtn.addEventListener("click", async () => {
-  signInAnonymously(auth)
-    .then(async (userCredential) => {
-      const uid = userCredential.user.uid;
+// Función para registrar usuario de forma segura
+async function registerUser() {
+  try {
+    const userCredential = await signInAnonymously(auth);
+    const uid = userCredential.user.uid;
 
-      // Contador secuencial
-      const counterRef = ref(db, "userCounter");
-      const snapshot = await new Promise(resolve => onValue(counterRef, resolve, { onlyOnce: true }));
-      const currentCount = snapshot.exists() ? snapshot.val() : 0;
-      const newCount = currentCount + 1;
-      await set(counterRef, newCount);
+    // Leer contador actual
+    const counterRef = ref(db, "userCounter");
+    const snapshot = await new Promise(resolve => onValue(counterRef, resolve, { onlyOnce: true }));
+    const currentCount = snapshot.exists() ? snapshot.val() : 0;
+    const newCount = currentCount + 1;
 
-      currentUserId = "usuario-" + newCount;
+    // Guardar nuevo contador
+    await set(counterRef, newCount);
 
-      // Guardar usuario en la DB
-      await set(ref(db, "users/" + currentUserId), { uid: uid, registrado: true });
+    // Crear ID de usuario secuencial
+    currentUserId = "usuario-" + newCount;
 
-      // Guardar en localStorage
-      localStorage.setItem("currentUserId", currentUserId);
+    // Guardar usuario en la DB
+    await set(ref(db, "users/" + currentUserId), { uid: uid, registrado: true });
 
-      loginScreen.classList.add("hidden");
-      chatScreen.classList.remove("hidden");
-    })
-    .catch((error) => {
-      console.error("Error en login anónimo:", error);
-      alert("Error al registrar, intenta de nuevo.");
-    });
-});
+    // Guardar en localStorage para que no pida login otra vez
+    localStorage.setItem("currentUserId", currentUserId);
+
+    // Cambiar de pantalla
+    loginScreen.classList.add("hidden");
+    chatScreen.classList.remove("hidden");
+  } catch (error) {
+    console.error("Error al registrar usuario:", error);
+    alert("No se pudo registrar. Revisa tu conexión o reglas de Firebase.");
+  }
+}
+
+// Botón Registrar
+registerBtn.addEventListener("click", registerUser);
 
 // Contador total de usuarios registrados
 onValue(ref(db, "users"), (snapshot) => {
@@ -110,21 +116,24 @@ backToChat.addEventListener("click", () => {
 });
 
 // Enviar spam
-sendSpam.addEventListener("click", () => {
+sendSpam.addEventListener("click", async () => {
   const number = spamNumber.value.trim();
   const text = spamMessage.value.trim();
   const reason = spamReason.value.trim();
 
   if (!number || !text || !reason) return alert("Completa todos los campos");
 
-  push(ref(db, "messages"), { number, text, reason, timestamp: Date.now() });
-
-  spamNumber.value = "";
-  spamMessage.value = "";
-  spamReason.value = "";
-
-  panelScreen.classList.add("hidden");
-  chatScreen.classList.remove("hidden");
+  try {
+    await push(ref(db, "messages"), { number, text, reason, timestamp: Date.now() });
+    spamNumber.value = "";
+    spamMessage.value = "";
+    spamReason.value = "";
+    panelScreen.classList.add("hidden");
+    chatScreen.classList.remove("hidden");
+  } catch (error) {
+    console.error("Error al enviar mensaje:", error);
+    alert("No se pudo enviar el mensaje. Revisa tu conexión.");
+  }
 });
 
 // Limitar mensajes a 50
