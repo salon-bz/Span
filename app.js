@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
 import { getDatabase, ref, push, set, onChildAdded, onChildRemoved, onValue, query, orderByChild, limitToLast, get, remove } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
+// --- CONFIG FIREBASE ---
 const firebaseConfig = {
   apiKey: "AIzaSyBHLckCRt9pbhwwBkp9-G2wWfqGM3Rq9fs",
   authDomain: "miapp-spam.firebaseapp.com",
@@ -14,6 +15,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// --- ELEMENTOS DOM ---
 const usersRef = ref(db, 'users');
 const messagesRef = ref(db, 'messages');
 
@@ -43,6 +45,7 @@ let lastPublishAt = 0;
 const MIN_MS_BETWEEN_PUB = 2000;
 const MAX_MESSAGES = 50;
 
+// --- UTILIDADES ---
 function uid(){
   let id = localStorage.getItem('app_uid');
   if (!id){
@@ -55,13 +58,50 @@ function show(el){ el.classList.remove('hidden'); }
 function hide(el){ el.classList.add('hidden'); }
 function esc(s){ if(!s) return ''; return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 
+// --- NOTIFICACIONES ---
+// Pide permiso al abrir por primera vez
+window.addEventListener('load', async () => {
+  if (Notification.permission === 'default') {
+    try {
+      const p = await Notification.requestPermission();
+      notifStatus.textContent = (p === 'granted') ? 'activadas' : 'desactivadas';
+      if (p === 'granted') {
+        console.log('✅ Permiso de notificaciones concedido.');
+      }
+    } catch (e) {
+      console.error('Error al pedir permiso de notificación:', e);
+    }
+  } else {
+    notifStatus.textContent = (Notification.permission === 'granted') ? 'activadas' : 'desactivadas';
+  }
+});
+
+function mostrarNotificacion(titulo, cuerpo) {
+  if (Notification.permission !== 'granted') return;
+  try {
+    const n = new Notification(titulo, {
+      body: cuerpo,
+      icon: "https://cdn-icons-png.flaticon.com/512/190/190411.png", // ícono genérico
+      tag: "nuevo-mensaje",
+      vibrate: [100, 50, 100],
+    });
+    n.onclick = () => window.focus();
+  } catch(e){
+    console.warn("No se pudo mostrar notificación:", e);
+  }
+}
+
+// --- REGISTRO DE USUARIOS ---
 async function registerPresence(){
   myId = uid();
   await set(ref(db, 'users/' + myId), { online: true, ts: Date.now() });
   userRef = ref(db, 'users/' + myId);
   statusEl.textContent = 'Estado: registrado como ' + myId;
-  btnRegister.classList.add('hidden'); btnLogout.classList.remove('hidden');
-  hide(loginCard); show(chatArea); hide(panelCard);
+  btnRegister.classList.add('hidden');
+  btnLogout.classList.remove('hidden');
+  hide(loginCard);
+  show(chatArea);
+  hide(panelCard);
 }
 async function unregisterPresence(){
   if (myId){
@@ -70,17 +110,21 @@ async function unregisterPresence(){
   localStorage.removeItem('app_uid');
   myId = null; userRef = null;
   statusEl.textContent = 'Estado: no registrado';
-  btnRegister.classList.remove('hidden'); btnLogout.classList.add('hidden');
-  show(loginCard); hide(chatArea); hide(panelCard);
+  btnRegister.classList.remove('hidden');
+  btnLogout.classList.add('hidden');
+  show(loginCard);
+  hide(chatArea);
+  hide(panelCard);
 }
 
+// --- EVENTOS FIREBASE ---
 onValue(usersRef, snap => {
   const v = snap.val() || {};
   userCountEl.textContent = Object.keys(v).length;
-}, err => { userCountEl.textContent = '0'; });
+});
 
 const q = query(messagesRef, orderByChild('ts'), limitToLast(200));
-onValue(messagesRef, snap=> {
+onValue(messagesRef, snap => {
   totalMsgEl.textContent = snap.numChildren();
   savedCountEl.textContent = snap.numChildren();
 });
@@ -88,15 +132,15 @@ onValue(messagesRef, snap=> {
 onChildAdded(q, (snap) => {
   const m = snap.val();
   appendMessage(snap.key, m);
+
+  // 🔔 Enviar notificación a todos (si tiene permiso)
   if (Notification.permission === 'granted') {
-    try {
-      const title = 'Nueva publicación';
-      const body = (m.text||'') + (m.reason ? ' — ' + m.reason : '');
-      const n = new Notification(title, { body, tag: snap.key });
-      n.onclick = () => { window.focus(); };
-    } catch(e){}
+    const title = 'Nuevo mensaje';
+    const body = `${m.text || ''}${m.reason ? ' — ' + m.reason : ''}`;
+    mostrarNotificacion(title, body);
   }
 });
+
 onChildRemoved(messagesRef, (snap) => {
   const id = 'm_' + snap.key;
   const el = document.getElementById(id);
@@ -138,6 +182,7 @@ function createWhatsAppLink(phone, text){
   return 'https://wa.me/' + encodeURIComponent(p) + '?text=' + encodeURIComponent(text || '');
 }
 
+// --- PUBLICAR MENSAJE ---
 btnPublish.addEventListener('click', async () => {
   if (!myId) { alert('Regístrate antes de publicar.'); return; }
   const phone = phoneIn.value.trim();
@@ -146,7 +191,7 @@ btnPublish.addEventListener('click', async () => {
   if (!phone || !text) { alert('Teléfono y mensaje son obligatorios.'); return; }
   const now = Date.now();
   if (now - lastPublishAt < MIN_MS_BETWEEN_PUB) { alert('Espera un momento antes de publicar otra vez.'); return; }
-  if (!confirm('Confirma publicar este mensaje. Uso responsable.')) return;
+  if (!confirm('¿Confirmas publicar este mensaje?')) return;
   lastPublishAt = now;
 
   const newRef = push(messagesRef);
@@ -164,13 +209,8 @@ btnRegister.addEventListener('click', async () => { await registerPresence(); })
 btnLogout.addEventListener('click', async () => { await unregisterPresence(); });
 
 btnNoti.addEventListener('click', async () => {
-  if (Notification.permission === "granted") {
-    notifStatus.textContent = 'activadas';
-    alert('Ya están activadas');
-  } else if (Notification.permission !== "denied") {
-    const p = await Notification.requestPermission();
-    notifStatus.textContent = (p === 'granted') ? 'activadas' : 'desactivadas';
-  }
+  const p = await Notification.requestPermission();
+  notifStatus.textContent = (p === 'granted') ? 'activadas' : 'desactivadas';
 });
 
 async function maintainMessageLimit(max){
@@ -184,5 +224,5 @@ async function maintainMessageLimit(max){
   }
 }
 
-// Estado de conexión
+// --- Estado DB ---
 dbStatus.textContent = 'Conectado';
