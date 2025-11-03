@@ -3,139 +3,115 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Administrador de Publicaciones - SociosXIT</title>
+  <title>Panel de Administración - SociosXIT</title>
 
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
   <style>
     body {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
-      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at top left, #1e293b, #0f172a);
+      font-family: 'Poppins', sans-serif;
       min-height: 100vh;
-      padding: 1.5rem;
+      color: #fff;
+      overflow-x: hidden;
     }
 
     .glass {
-      background: rgba(255, 255, 255, 0.07);
-      backdrop-filter: blur(18px);
-      border-radius: 1.8rem;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: 0.3s;
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 2rem;
+      transition: 0.4s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
     .glass:hover {
-      transform: translateY(-5px);
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    input, textarea {
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      border-radius: 1.2rem;
-      padding: 0.7rem 1rem;
-      color: white;
-      outline: none;
-      transition: 0.3s;
-      width: 100%;
-    }
-
-    input:focus, textarea:focus {
-      background: rgba(255, 255, 255, 0.25);
-      box-shadow: 0 0 10px rgba(59,130,246,0.4);
+      transform: translateY(-6px);
+      background: rgba(255,255,255,0.12);
     }
 
     .btn {
       border: none;
-      border-radius: 2rem;
-      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      padding: 0.5rem 1.3rem;
       font-weight: 600;
       transition: 0.3s;
-      cursor: pointer;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
 
-    .btn-blue { background: linear-gradient(90deg, #3b82f6, #06b6d4); }
-    .btn-red { background: linear-gradient(90deg, #f43f5e, #ef4444); }
-    .btn-green { background: linear-gradient(90deg, #10b981, #059669); }
+    .btn:hover {
+      transform: scale(1.05);
+    }
 
-    .preview { border-radius: 1.2rem; overflow: hidden; margin-top: 1rem; }
-    video, img { width: 100%; height: 200px; object-fit: cover; }
+    .btn-blue {
+      background: linear-gradient(90deg, #06b6d4, #3b82f6);
+    }
 
-    .sub-card {
-      background: rgba(255,255,255,0.08);
+    .btn-green {
+      background: linear-gradient(90deg, #34d399, #059669);
+    }
+
+    .btn-red {
+      background: linear-gradient(90deg, #ef4444, #f43f5e);
+    }
+
+    input[type="number"] {
+      background: rgba(255,255,255,0.15);
+      border: none;
+      border-radius: 2rem;
+      color: white;
+      text-align: center;
+      outline: none;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.9rem;
+      transition: 0.3s;
+    }
+
+    input[type="number"]:focus {
+      background: rgba(255,255,255,0.25);
+      box-shadow: 0 0 10px rgba(59,130,246,0.4);
+    }
+
+    input[type="checkbox"] {
+      transform: scale(1.3);
+      accent-color: #f43f5e;
+    }
+
+    .tag {
+      background: rgba(255,255,255,0.15);
+      padding: 0.2rem 0.8rem;
       border-radius: 1rem;
-      padding: 1rem;
-      margin-top: 1rem;
-      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.8rem;
     }
-    
-    /* Nueva regla para organizar mejor los campos dentro de sub-card */
-    .sub-card-content {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 0.75rem; /* Espacio entre los campos de input */
+
+    .header-glow {
+      text-shadow: 0 0 15px rgba(59,130,246,0.6);
     }
-    
-    /* Para pantallas medianas, organiza los inputs en dos columnas */
-    @media (min-width: 768px) {
-        .sub-card-content {
-            grid-template-columns: 1fr 1fr;
-        }
-        .sub-card-content textarea {
-            grid-column: span 2; /* Que el textarea ocupe ambas columnas */
-        }
-    }
+
   </style>
 </head>
 
-<body>
-  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+<body class="p-6 md:p-10">
+
+  <!-- Header -->
+  <header class="flex flex-col md:flex-row justify-between items-center mb-10">
     <div>
-      <h1 class="text-3xl font-bold text-blue-300">📰 Administrador de Publicaciones</h1>
-      <p class="text-gray-300">Crea, edita o elimina publicaciones del dashboard</p>
+      <h1 class="text-4xl font-bold mb-2 header-glow">Panel de Administración</h1>
+      <p class="text-gray-300">Gestiona usuarios, saldos y accesos de SociosXIT</p>
     </div>
-    <button id="togglePostsBtn" class="btn btn-blue text-lg">
-        📋 Ver publicaciones existentes (0)
+    <button id="deleteSelectedBtn" class="btn btn-red mt-5 md:mt-0">
+      🗑️ Eliminar seleccionados
     </button>
   </header>
 
-  <section class="glass p-8 mb-10">
-    <form id="postForm" class="grid gap-5 md:grid-cols-2">
-      <div class="flex flex-col gap-1">
-        <label for="title" class="font-medium">Título</label>
-        <input type="text" id="title" placeholder="Ejemplo: Netflix Premium" required />
-      </div>
-
-      <div class="flex flex-col gap-1">
-        <label for="mediaUrl" class="font-medium">Link de foto o video</label>
-        <input type="url" id="mediaUrl" placeholder="https://..." />
-      </div>
-
-      <div class="md:col-span-2 mt-2">
-        <h3 class="text-lg font-semibold text-blue-300 mb-4 border-b border-gray-700 pb-2">💰 Botones de compra</h3>
-        <div id="buttonsContainer" class="grid grid-cols-1 gap-4"></div>
-        <button type="button" id="addButton" class="btn btn-blue mt-5">➕ Agregar otro botón</button>
-      </div>
-
-      <div class="md:col-span-2 flex justify-end mt-6 gap-4">
-        <button type="reset" class="btn btn-red" id="cancelBtn">Cancelar</button>
-        <button type="submit" class="btn btn-green">📢 Publicar</button>
-      </div>
-    </form>
-
-    <div id="preview" class="preview hidden"></div>
-  </section>
-
-  <section id="postSection" class="hidden">
-    <h2 class="text-2xl font-semibold text-blue-300 mb-6">📋 Publicaciones existentes</h2>
-    <div id="postList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
-  </section>
+  <!-- Lista de usuarios -->
+  <main id="userList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></main>
 
   <script>
-    // Firebase config
+    // --- Firebase Config ---
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
       authDomain: "sociosxit-5f841.firebaseapp.com",
@@ -147,236 +123,86 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const userList = document.getElementById("userList");
+    const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
 
-    const form = document.getElementById("postForm");
-    const buttonsContainer = document.getElementById("buttonsContainer");
-    const addButton = document.getElementById("addButton");
-    const postList = document.getElementById("postList");
-    const submitBtn = form.querySelector("button[type='submit']");
-    const cancelBtn = document.getElementById("cancelBtn");
-    
-    // Elementos nuevos para el toggle
-    const postSection = document.getElementById("postSection");
-    const togglePostsBtn = document.getElementById("togglePostsBtn");
+    // --- Cargar usuarios ---
+    db.ref("users").on("value", snapshot => {
+      userList.innerHTML = "";
+      const users = snapshot.val() || {};
 
-    // Guardamos la función de crear original para restaurarla
-    let originalSubmitHandler;
-
-    // Función para obtener el precio en formato numérico (acepta ',' o '.')
-    function getPriceValue(inputElement) {
-        const priceStr = inputElement.value.trim().replace(',', '.');
-        return parseFloat(priceStr);
-    }
-
-    // ** Modificación de createButtonForm para mejor diseño **
-    function createButtonForm(index) {
-      const div = document.createElement("div");
-      div.className = "sub-card";
-      div.innerHTML = `
-        <div class="flex justify-between items-center mb-4">
-          <h4 class="font-semibold text-blue-400">Botón ${index + 1}</h4>
-          <button type="button" class="btn btn-red py-1 px-2 text-sm" onclick="this.parentNode.parentNode.remove()">🗑 Eliminar</button>
-        </div>
-        <div class="sub-card-content">
-            <div class="flex flex-col gap-1">
-                <label class="text-sm text-gray-400">Texto del botón</label>
-                <input type="text" placeholder="Ej: 1 mes de uso" class="btnText" required />
-            </div>
-            <div class="flex flex-col gap-1">
-                <label class="text-sm text-gray-400">Precio (Ej: 4.70 o 4,70)</label>
-                <input type="text" placeholder="Precio" class="btnPrice" required />
-            </div>
-            <div class="flex flex-col gap-1">
-                <label class="text-sm text-gray-400">Días de uso</label>
-                <input type="number" placeholder="Días" class="btnDays" required />
-            </div>
-            <div></div> 
-            
-            <div class="flex flex-col gap-1 md:col-span-2">
-                <label class="text-sm text-gray-400">Claves / Keys</label>
-                <textarea placeholder="key: 12345, key: 67890" class="btnKeys" required></textarea>
-            </div>
-        </div>
-      `;
-      return div;
-    }
-
-    addButton.addEventListener("click", () => {
-      buttonsContainer.appendChild(createButtonForm(buttonsContainer.children.length));
-    });
-
-    buttonsContainer.appendChild(createButtonForm(0));
-
-    // ** NUEVA FUNCIÓN: Toggle para ver/ocultar publicaciones **
-    togglePostsBtn.addEventListener('click', () => {
-        postSection.classList.toggle('hidden');
-        const isHidden = postSection.classList.contains('hidden');
-        togglePostsBtn.innerHTML = isHidden 
-            ? `📋 Ver publicaciones existentes (${postList.children.length})` 
-            : `❌ Ocultar publicaciones`;
-    });
-    
-    // Función que restaura el formulario al estado inicial de "Crear"
-    function resetFormState() {
-      form.reset();
-      buttonsContainer.innerHTML = "";
-      buttonsContainer.appendChild(createButtonForm(0));
-      
-      // Restablecer el botón de submit
-      submitBtn.textContent = "📢 Publicar";
-      submitBtn.classList.remove("btn-blue");
-      submitBtn.classList.add("btn-green");
-
-      // Restaurar el manejador de envío original (Crear)
-      if (originalSubmitHandler) {
-          form.removeEventListener("submit", form.onsubmit);
-          form.addEventListener("submit", originalSubmitHandler);
-      }
-    }
-
-    // Listener para el botón Cancelar (resetear la edición/creación)
-    cancelBtn.addEventListener("click", (e) => {
-        e.preventDefault();
-        resetFormState(); 
-    });
-    
-    // Almacenamos el manejador de submit original (Crear)
-    originalSubmitHandler = async e => {
-      e.preventDefault();
-
-      const title = document.getElementById("title").value.trim();
-      const mediaUrl = document.getElementById("mediaUrl").value.trim();
-
-      const buttons = [...buttonsContainer.children].map(div => {
-        const text = div.querySelector(".btnText").value.trim();
-        const price = getPriceValue(div.querySelector(".btnPrice"));
-        const days = parseInt(div.querySelector(".btnDays").value);
-        const keysRaw = div.querySelector(".btnKeys").value.trim();
-        const keys = keysRaw
-          .split(/,|\n/)
-          .map(k => {
-            const clean = k.trim();
-            const match = clean.match(/key\s*:\s*(.+)/i);
-            if (match) return { key: match[1].trim() };
-          })
-          .filter(Boolean);
-        return { text, price, days, keys };
-      });
-
-      const pub = {
-        title,
-        mediaUrl,
-        buttons,
-        createdAt: new Date().toISOString()
-      };
-
-      await db.ref("publications").push(pub);
-      alert("✅ Publicación creada con éxito");
-      resetFormState(); 
-    };
-
-    // Crear publicación (inicial)
-    form.addEventListener("submit", originalSubmitHandler);
-
-    // Mostrar publicaciones
-    db.ref("publications").on("value", snap => {
-      postList.innerHTML = "";
-      const data = snap.val() || {};
-      const postCount = Object.keys(data).length;
-      
-      // Actualizar el contador del botón
-      togglePostsBtn.innerHTML = postSection.classList.contains('hidden') 
-          ? `📋 Ver publicaciones existentes (${postCount})` 
-          : `❌ Ocultar publicaciones`;
-      
-      Object.keys(data).forEach(id => {
-        const p = data[id];
-        const media = p.mediaUrl
-          ? p.mediaUrl.includes(".mp4")
-            ? `<video src="${p.mediaUrl}" controls></video>`
-            : `<img src="${p.mediaUrl}" alt="">`
-          : "";
+      Object.keys(users).forEach(key => {
+        const user = users[key];
+        const userEmail = key.replace(/_/g, ".");
+        const balance = user.balance || 0;
 
         const div = document.createElement("div");
-        div.className = "glass p-5";
+        div.className = "glass p-6 flex flex-col justify-between";
+
         div.innerHTML = `
-          ${media}
-          <h3 class="text-xl font-bold mt-3">${p.title}</h3>
-          ${(p.buttons || []).map(b => `
-            <div class="mt-3 p-3 rounded-lg bg-gray-800/40">
-              <p class="font-semibold text-blue-400">${b.text}</p>
-              <p>💰 $${b.price} — 🕒 ${b.days} días</p>
-              <p class="text-xs text-gray-400">🔑 ${b.keys?.length || 0} claves</p>
+          <div>
+            <div class="flex justify-between items-center mb-2">
+              <h2 class="text-xl font-bold text-blue-300">${userEmail}</h2>
+              <span class="tag">ID corto: ${key.slice(0,6)}...</span>
             </div>
-          `).join("")}
-          <button onclick="editPost('${id}')" class="btn btn-blue w-full mt-4">✏️ Editar</button>
-          <button onclick="deletePost('${id}')" class="btn btn-red w-full mt-2">🗑 Eliminar</button>
+
+            <div class="flex justify-between items-center mb-4">
+              <span class="text-gray-300 text-sm">💰 Saldo actual</span>
+              <span class="text-green-400 font-semibold text-lg">$${balance.toFixed(2)}</span>
+            </div>
+
+            <div class="flex flex-wrap gap-2 mb-4 justify-between items-center">
+              <input type="number" step="0.01" placeholder="Monto" id="amount-${key}" class="w-24 text-sm" />
+              <button onclick="updateBalance('${key}', true)" class="btn btn-green text-sm">+ Agregar</button>
+              <button onclick="updateBalance('${key}', false)" class="btn btn-red text-sm">− Quitar</button>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center border-t border-gray-700 pt-4 mt-2">
+            <label class="flex items-center gap-2 text-sm text-gray-300">
+              <input type="checkbox" class="userCheckbox" value="${key}">
+              Eliminar usuario
+            </label>
+          </div>
         `;
-        postList.appendChild(div);
+        userList.appendChild(div);
       });
     });
 
-    async function deletePost(id) {
-      if (!confirm("¿Seguro que deseas eliminar esta publicación?")) return;
-      await db.ref("publications/" + id).remove();
-      alert("🗑 Publicación eliminada correctamente");
-    }
+    // --- Actualizar saldo ---
+    function updateBalance(userKey, add) {
+      const amountEl = document.getElementById(`amount-${userKey}`);
+      const amount = parseFloat(amountEl.value);
+      if (isNaN(amount) || amount <= 0) {
+        alert("Por favor, ingresa un monto válido.");
+        return;
+      }
 
-    async function editPost(id) {
-      const snap = await db.ref("publications/" + id).once("value");
-      const pub = snap.val();
-      if (!pub) return alert("No encontrada");
-
-      // 1. Cargar datos en el formulario
-      document.getElementById("title").value = pub.title;
-      document.getElementById("mediaUrl").value = pub.mediaUrl;
-
-      buttonsContainer.innerHTML = "";
-      (pub.buttons || []).forEach((b, i) => {
-        const div = createButtonForm(i);
-        div.querySelector(".btnText").value = b.text;
-        div.querySelector(".btnPrice").value = b.price;
-        div.querySelector(".btnDays").value = b.days;
-        div.querySelector(".btnKeys").value = b.keys.map(k => `key: ${k.key}`).join(", ");
-        buttonsContainer.appendChild(div);
+      const balanceRef = db.ref(`users/${userKey}/balance`);
+      balanceRef.transaction(current => {
+        if (!current) current = 0;
+        return add ? current + amount : Math.max(0, current - amount);
       });
-
-      // 2. Modificar la UI del botón de submit
-      submitBtn.textContent = "💾 Guardar cambios";
-      submitBtn.classList.remove("btn-green");
-      submitBtn.classList.add("btn-blue");
-
-      // 3. Cambiar el evento de submit temporalmente a 'Guardar'
-      form.removeEventListener("submit", originalSubmitHandler);
-
-      // Usamos form.onsubmit para sobrescribir temporalmente el evento
-      form.onsubmit = async e => {
-        e.preventDefault();
-        const title = document.getElementById("title").value.trim();
-        const mediaUrl = document.getElementById("mediaUrl").value.trim();
-
-        const buttons = [...buttonsContainer.children].map(div => {
-          const text = div.querySelector(".btnText").value.trim();
-          const price = getPriceValue(div.querySelector(".btnPrice"));
-          const days = parseInt(div.querySelector(".btnDays").value);
-          const keysRaw = div.querySelector(".btnKeys").value.trim();
-          const keys = keysRaw
-            .split(/,|\n/)
-            .map(k => {
-              const clean = k.trim();
-              const match = clean.match(/key\s*:\s*(.+)/i);
-              if (match) return { key: match[1].trim() };
-            })
-            .filter(Boolean);
-          return { text, price, days, keys };
-        });
-
-        await db.ref("publications/" + id).set({ title, mediaUrl, buttons, createdAt: pub.createdAt });
-        
-        alert("✅ Publicación actualizada");
-        resetFormState(); // Vuelve al modo "Crear Publicación"
-      };
+      amountEl.value = "";
     }
+
+    // --- Eliminar usuarios seleccionados ---
+    deleteSelectedBtn.onclick = async () => {
+      const selected = Array.from(document.querySelectorAll(".userCheckbox:checked"));
+      if (selected.length === 0) {
+        alert("Selecciona al menos un usuario para eliminar.");
+        return;
+      }
+
+      if (!confirm(`¿Seguro que deseas eliminar ${selected.length} usuario(s)?`)) return;
+
+      for (const checkbox of selected) {
+        const userKey = checkbox.value;
+        await db.ref(`users/${userKey}`).remove();
+      }
+
+      alert("Usuarios eliminados correctamente ✅");
+    };
   </script>
 </body>
 </html>
