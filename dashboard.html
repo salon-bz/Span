@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - SociosXIT</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  
+  <style>
+    body {
+      background: linear-gradient(135deg, #232526, #414345);
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+    }
+    .card {
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .btn-show {
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+    }
+    .btn-buy {
+      background: linear-gradient(90deg, #00ff88, #00b894);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-logout {
+      background: linear-gradient(90deg, #ff416c, #ff4b2b);
+    }
+  </style>
+</head>
+
+<body class="text-white p-4 md:p-8">
+
+  <header class="flex justify-between items-center mb-6 p-4 rounded-lg card">
+    <div>
+      <h1 class="text-2xl font-bold">Bienvenido, <span id="userName" class="text-blue-300"></span></h1>
+      <p class="text-sm text-gray-300">Publicaciones disponibles para ti</p>
+    </div>
+    <button id="logoutBtn" class="btn-logout font-semibold py-2 px-4 rounded-lg transition-transform hover:scale-105">
+      Cerrar Sesión
+    </button>
+  </header>
+
+  <main id="publicationsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    </main>
+
+  <script>
+    // Config Firebase (MISMA CONFIGURACIÓN)
+    const firebaseConfig = {
+      apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
+      authDomain: "sociosxit-5f841.firebaseapp.com",
+      databaseURL: "https://sociosxit-5f841-default-rtdb.firebaseio.com",
+      projectId: "sociosxit-5f841",
+      storageBucket: "sociosxit-5f841.firebasestorage.app",
+      messagingSenderId: "364183519851",
+      appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const pubsRef = db.ref("publications");
+
+    const userNameEl = document.getElementById("userName");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const publicationsContainer = document.getElementById("publicationsContainer");
+
+    // 1. Verificar Sesión
+    const currentUser = sessionStorage.getItem("sociosxit_user");
+    if (!currentUser) {
+      window.location.href = "index.html"; // Si no hay sesión, regresa al login
+    } else {
+      userNameEl.textContent = currentUser;
+    }
+
+    // 2. Cerrar Sesión
+    logoutBtn.onclick = () => {
+      sessionStorage.removeItem("sociosxit_user");
+      window.location.href = "index.html";
+    };
+
+    // 3. Escuchar publicaciones de Firebase
+    pubsRef.on("value", (snapshot) => {
+      publicationsContainer.innerHTML = ""; // Limpiar antes de pintar
+      const data = snapshot.val();
+      if (!data) {
+        publicationsContainer.innerHTML = "<p>No hay publicaciones disponibles.</p>";
+        return;
+      }
+      
+      // Iterar sobre cada publicacion
+      Object.keys(data).forEach(key => {
+        const pub = data[key];
+        const pubElement = createPublicationElement(pub, key);
+        publicationsContainer.prepend(pubElement); // .prepend para mostrar la más nueva primero
+      });
+    });
+
+    // 4. Función para crear el HTML de una publicación
+    function createPublicationElement(pub, key) {
+      const div = document.createElement("div");
+      div.className = "card rounded-xl overflow-hidden shadow-lg p-5";
+
+      let mediaHTML = "";
+      if (pub.mediaUrl) {
+        if (pub.mediaUrl.includes("youtube.com") || pub.mediaUrl.includes("youtu.be")) {
+          // Es video de YouTube
+          const videoId = pub.mediaUrl.split('v=')[1] || pub.mediaUrl.split('/').pop();
+          mediaHTML = `
+            <div class="aspect-w-16 aspect-h-9 mb-4">
+              <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="w-full h-full rounded-lg"></iframe>
+            </div>`;
+        } else {
+          // Es imagen
+          mediaHTML = `<img src="${pub.mediaUrl}" alt="${pub.title}" class="w-full h-48 object-cover rounded-lg mb-4">`;
+        }
+      }
+
+      // Generar los botones de compra
+      let buttonsHTML = "";
+      if (pub.buttons) {
+        Object.keys(pub.buttons).forEach(btnKey => {
+          const btn = pub.buttons[btnKey];
+          buttonsHTML += `
+            <div class="btn-buy p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
+              <div class="text-2xl font-bold">$${btn.price}</div>
+              <div class="text-sm font-semibold">${btn.duration}</div>
+              <div class="text-xs text-gray-200 mt-1">${btn.quantity} disponibles</div>
+              <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-4 rounded-full text-sm">Comprar</button>
+            </div>
+          `;
+        });
+      }
+
+      div.innerHTML = `
+        ${mediaHTML}
+        <h2 class="text-2xl font-bold mb-3">${pub.title}</h2>
+        <button class="btn-show w-full py-2 rounded-lg font-semibold" onclick="toggleDetails('${key}')">
+          Mostrar Opciones
+        </button>
+        <div id="details-${key}" class="hidden mt-4 space-y-3">
+          ${buttonsHTML}
+        </div>
+      `;
+      return div;
+    }
+
+    // 5. Función para mostrar/ocultar detalles
+    function toggleDetails(key) {
+      const detailsEl = document.getElementById(`details-${key}`);
+      detailsEl.classList.toggle("hidden");
+    }
+
+  </script>
+</body>
+</html>
