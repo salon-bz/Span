@@ -19,290 +19,292 @@
       --level-base: rgba(255,255,255,0.1);
       --level-vip: #00f0ff; /* VIP: Cian */
       --level-premium: #ff4df0; /* Premium: Rosa */
-    }
+    }  html,body{height:100%;}
 
-    html,body{height:100%;}
+body {
+  background: linear-gradient(135deg, #0f0812 10%, #141225 50%, #1b1730 100%);
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  color: #fff;
+}
 
-    body {
-      background: linear-gradient(135deg, #0f0812 10%, #141225 50%, #1b1730 100%);
-      min-height: 100vh;
-      font-family: 'Poppins', sans-serif;
-      position: relative;
-      overflow-x: hidden;
-      color: #fff;
-    }
+/* particles canvas sits behind everything */
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
 
-    /* particles canvas sits behind everything */
-    #particles {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      display: block;
-    }
+/* content sits above particles */
+.app-root {
+  position: relative;
+  z-index: 5;
+}
 
-    /* content sits above particles */
-    .app-root {
-      position: relative;
-      z-index: 5;
-    }
+.card {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
 
-    .card {
-      background: rgba(255,255,255,0.03);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255,255,255,0.06);
-    }
+/* NEON BUTTONS & FLOATING */
+@keyframes floaty {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
 
-    /* NEON BUTTONS & FLOATING */
-    @keyframes floaty {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
-      100% { transform: translateY(0); }
-    }
+.neon-btn {
+  transition: transform .18s ease, box-shadow .18s ease;
+  animation: floaty 3.8s ease-in-out infinite;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.35), 0 0 18px rgba(0, 255, 200, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+}
 
-    .neon-btn {
-      transition: transform .18s ease, box-shadow .18s ease;
-      animation: floaty 3.8s ease-in-out infinite;
-      box-shadow: 0 6px 30px rgba(0,0,0,0.35), 0 0 18px rgba(0, 255, 200, 0.06);
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(6px);
-    }
+.btn-show {
+  background: linear-gradient(90deg, rgba(0,240,255,0.16), rgba(0,122,255,0.14));
+  color: var(--neon-cyan);
+  box-shadow: 0 6px 26px rgba(0,240,255,0.06), 0 0 14px rgba(0,240,255,0.12);
+}
 
-    .btn-show {
-      background: linear-gradient(90deg, rgba(0,240,255,0.16), rgba(0,122,255,0.14));
-      color: var(--neon-cyan);
-      box-shadow: 0 6px 26px rgba(0,240,255,0.06), 0 0 14px rgba(0,240,255,0.12);
-    }
+.btn-buy {
+  background: linear-gradient(90deg, rgba(0,255,136,0.12), rgba(0,184,148,0.14));
+  color: var(--neon-green);
+  box-shadow: 0 8px 30px rgba(0,255,136,0.06), 0 0 20px rgba(0,255,136,0.08);
+}
 
-    .btn-buy {
-      background: linear-gradient(90deg, rgba(0,255,136,0.12), rgba(0,184,148,0.14));
-      color: var(--neon-green);
-      box-shadow: 0 8px 30px rgba(0,255,136,0.06), 0 0 20px rgba(0,255,136,0.08);
-    }
+.btn-logout {
+  background: linear-gradient(90deg, rgba(255,65,108,0.12), rgba(255,75,43,0.14));
+  color: var(--neon-pink);
+  box-shadow: 0 8px 30px rgba(255,65,108,0.06), 0 0 20px rgba(255,65,108,0.08);
+}
 
-    .btn-logout {
-      background: linear-gradient(90deg, rgba(255,65,108,0.12), rgba(255,75,43,0.14));
-      color: var(--neon-pink);
-      box-shadow: 0 8px 30px rgba(255,65,108,0.06), 0 0 20px rgba(255,65,108,0.08);
-    }
+/* neon text glows */
+.text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,240,255,0.18); }
+.text-neon-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,77,240,0.14); }
+.text-neon-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,136,0.12); }
 
-    /* neon text glows */
-    .text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,240,255,0.18); }
-    .text-neon-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,77,240,0.14); }
-    .text-neon-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,136,0.12); }
+/* pestañas */
+.tabs { display:flex; gap:8px; margin-bottom:12px; z-index:6; }
+.tab-btn {
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.95);
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform .12s ease, box-shadow .12s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+.tab-btn.active {
+  background: linear-gradient(90deg, rgba(0,240,255,0.14), rgba(59,130,246,0.06));
+  color: #061220;
+  box-shadow: 0 10px 45px rgba(0,240,255,0.06), 0 0 20px rgba(0,240,255,0.06);
+}
 
-    /* pestañas */
-    .tabs { display:flex; gap:8px; margin-bottom:12px; z-index:6; }
-    .tab-btn {
-      background: rgba(255,255,255,0.02);
-      color: rgba(255,255,255,0.95);
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.04);
-      cursor: pointer;
-      font-weight: 600;
-      transition: transform .12s ease, box-shadow .12s ease;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-    }
-    .tab-btn.active {
-      background: linear-gradient(90deg, rgba(0,240,255,0.14), rgba(59,130,246,0.06));
-      color: #061220;
-      box-shadow: 0 10px 45px rgba(0,240,255,0.06), 0 0 20px rgba(0,240,255,0.06);
-    }
+/* recuadro key */
+.key-box {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(0,255,136,0.12);
+  padding: 12px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+.small-muted { color: rgba(255,255,255,0.75); font-size:0.9rem; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
 
-    /* recuadro key */
-    .key-box {
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(0,255,136,0.12);
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
-    .small-muted { color: rgba(255,255,255,0.75); font-size:0.9rem; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+/* modal */
+.modal-backdrop {
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.55); z-index: 1000;
+}
+.modal {
+  width: 92%;
+  max-width: 520px;
+  border-radius: 12px;
+  padding: 18px;
+  background: rgba(10,8,20,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  color: white;
+  box-shadow: 0 10px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0,240,255,0.04) inset;
+}
+.modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+.price-badge { font-size: 1.5rem; font-weight:700; color: var(--neon-yellow); text-shadow:0 0 12px rgba(255,212,96,0.12); }
 
-    /* modal */
-    .modal-backdrop {
-      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.55); z-index: 1000;
-    }
-    .modal {
-      width: 92%;
-      max-width: 520px;
-      border-radius: 12px;
-      padding: 18px;
-      background: rgba(10,8,20,0.7);
-      border: 1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(8px);
-      color: white;
-      box-shadow: 0 10px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0,240,255,0.04) inset;
-    }
-    .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
-    .price-badge { font-size: 1.5rem; font-weight:700; color: var(--neon-yellow); text-shadow:0 0 12px rgba(255,212,96,0.12); }
+/* === HAMBURGER + SIDEBAR (DERECHA) === */
+.hamburger {
+  position: fixed;
+  right: 18px; /* moved to right */
+  top: 18px;
+  z-index: 120;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+.hamburger:active { transform: scale(.98); }
 
-    /* === HAMBURGER + SIDEBAR (DERECHA) === */
-    .hamburger {
-      position: fixed;
-      right: 18px; /* moved to right */
-      top: 18px;
-      z-index: 120;
-      width: 52px;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.06);
-      backdrop-filter: blur(6px);
-      cursor: pointer;
-      transition: transform .18s ease, background .18s ease;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.45);
-    }
-    .hamburger:active { transform: scale(.98); }
+.burger {
+  width: 24px;
+  height: 16px;
+  position: relative;
+  transition: all .25s ease;
+}
+.burger span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: white;
+  display: block;
+  border-radius: 2px;
+  transition: transform .25s ease, opacity .18s ease;
+  box-shadow: 0 0 8px rgba(255,255,255,0.06);
+}
+.burger span:nth-child(1) { top: 0; }
+.burger span:nth-child(2) { top: 7px; }
+.burger span:nth-child(3) { top: 14px; }
 
-    .burger {
-      width: 24px;
-      height: 16px;
-      position: relative;
-      transition: all .25s ease;
-    }
-    .burger span {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: white;
-      display: block;
-      border-radius: 2px;
-      transition: transform .25s ease, opacity .18s ease;
-      box-shadow: 0 0 8px rgba(255,255,255,0.06);
-    }
-    .burger span:nth-child(1) { top: 0; }
-    .burger span:nth-child(2) { top: 7px; }
-    .burger span:nth-child(3) { top: 14px; }
+/* open / scroll => X */
+.hamburger.open .burger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  background: var(--neon-pink);
+  box-shadow: 0 0 18px rgba(255,77,240,0.18);
+}
+.hamburger.open .burger span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open .burger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  background: var(--neon-cyan);
+  box-shadow: 0 0 18px rgba(0,240,255,0.18);
+}
 
-    /* open / scroll => X */
-    .hamburger.open .burger span:nth-child(1) {
-      transform: translateY(7px) rotate(45deg);
-      background: var(--neon-pink);
-      box-shadow: 0 0 18px rgba(255,77,240,0.18);
-    }
-    .hamburger.open .burger span:nth-child(2) {
-      opacity: 0;
-    }
-    .hamburger.open .burger span:nth-child(3) {
-      transform: translateY(-7px) rotate(-45deg);
-      background: var(--neon-cyan);
-      box-shadow: 0 0 18px rgba(0,240,255,0.18);
-    }
+/* backdrop */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: none;
+  background: rgba(0,0,0,0.55);
+  transition: opacity .22s ease;
+}
 
-    /* backdrop */
-    .menu-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 110;
-      display: none;
-      background: rgba(0,0,0,0.55);
-      transition: opacity .22s ease;
-    }
+/* side menu slides from RIGHT */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -100%; /* hidden off-screen to right */
+  height: 100vh;
+  width: 60vw;
+  max-width: 520px;
+  z-index: 115;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: right .28s cubic-bezier(.2,.9,.2,1);
+  border-radius: 12px 0 0 12px;
+  background: linear-gradient(180deg, rgba(16,12,28,0.75), rgba(16,12,28,0.6));
+  border: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 60px rgba(0,0,0,0.7);
+}
+.side-menu.open { right: 0; }
 
-    /* side menu slides from RIGHT */
-    .side-menu {
-      position: fixed;
-      top: 0;
-      right: -100%; /* hidden off-screen to right */
-      height: 100vh;
-      width: 60vw;
-      max-width: 520px;
-      z-index: 115;
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      transition: right .28s cubic-bezier(.2,.9,.2,1);
-      border-radius: 12px 0 0 12px;
-      background: linear-gradient(180deg, rgba(16,12,28,0.75), rgba(16,12,28,0.6));
-      border: 1px solid rgba(255,255,255,0.04);
-      backdrop-filter: blur(14px);
-      box-shadow: 0 10px 60px rgba(0,0,0,0.7);
-    }
-    .side-menu.open { right: 0; }
+.menu-user {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.menu-user .avatar {
+  width: 56px; height: 56px; border-radius: 12px;
+  background: linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));
+  display:flex; align-items:center; justify-content:center; font-weight:700; color:#071122;
+  box-shadow: 0 8px 30px rgba(0,240,255,0.06), 0 0 28px rgba(255,77,240,0.06);
+  font-size:18px;
+}
+.menu-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px; border-radius:12px; cursor:pointer;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.4);
+}
+.menu-item:hover {
+  transform: translateX(-6px);
+  background: linear-gradient(90deg, rgba(0,240,255,0.03), rgba(255,77,240,0.02));
+  box-shadow: 0 10px 45px rgba(0,240,255,0.04), 0 0 18px rgba(255,77,240,0.03);
+}
 
-    .menu-user {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .menu-user .avatar {
-      width: 56px; height: 56px; border-radius: 12px;
-      background: linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));
-      display:flex; align-items:center; justify-content:center; font-weight:700; color:#071122;
-      box-shadow: 0 8px 30px rgba(0,240,255,0.06), 0 0 28px rgba(255,77,240,0.06);
-      font-size:18px;
-    }
-    .menu-item {
-      display:flex; justify-content:space-between; align-items:center;
-      padding:12px; border-radius:12px; cursor:pointer;
-      background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-      border:1px solid rgba(255,255,255,0.03);
-      transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
-      box-shadow: 0 6px 22px rgba(0,0,0,0.4);
-    }
-    .menu-item:hover {
-      transform: translateX(-6px);
-      background: linear-gradient(90deg, rgba(0,240,255,0.03), rgba(255,77,240,0.02));
-      box-shadow: 0 10px 45px rgba(0,240,255,0.04), 0 0 18px rgba(255,77,240,0.03);
-    }
+/* responsive */
+@media (max-width: 520px) {
+  .side-menu { width: 80vw; max-width: none; }
+}
 
-    /* responsive */
-    @media (max-width: 520px) {
-      .side-menu { width: 80vw; max-width: none; }
-    }
+/* === HIDING main screen controls (we keep markup but hide them visually on main) === */
+/* NOTE: Removed .hide-on-main .tabs from here so the tabs remain visible on main screen. */
+.hide-on-main .user-block,
+.hide-on-main .header-right {
+  display: none !important;
+}
 
-    /* === HIDING main screen controls (we keep markup but hide them visually on main) === */
-    .hide-on-main .user-block,
-    .hide-on-main .header-right,
-    .hide-on-main .tabs {
-      display: none !important;
-    }
+/* small neon touches for cards */
+.card.rounded-xl { border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
+.card .text-2xl { text-shadow: 0 0 12px rgba(0,0,0,0.2); }
 
-    /* small neon touches for cards */
-    .card.rounded-xl { border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
-    .card .text-2xl { text-shadow: 0 0 12px rgba(0,0,0,0.2); }
+/* Make buy CTA look neon inside the card */
+.btn-buy .py-2 { color: #041020; }
 
-    /* Make buy CTA look neon inside the card */
-    .btn-buy .py-2 { color: #041020; }
+/* === NUEVOS ESTILOS PARA BARRA DE GASTOS Y NIVEL === */
+.progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--level-base);
+  overflow: hidden;
+  margin-top: 4px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3) inset;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease-out, background 0.4s ease;
+  background-color: var(--level-base); /* Base, se actualiza por JS */
+}
+.level-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+/* Estilos para nivel VIP */
+.level-vip-text { color: var(--level-vip); text-shadow: 0 0 12px rgba(0,240,255,0.3); }
+/* Estilos para nivel Premium */
+.level-premium-text { color: var(--level-premium); text-shadow: 0 0 12px rgba(255,77,240,0.3); }
 
-    /* === NUEVOS ESTILOS PARA BARRA DE GASTOS Y NIVEL === */
-    .progress-bar {
-      height: 8px;
-      border-radius: 999px;
-      background-color: var(--level-base);
-      overflow: hidden;
-      margin-top: 4px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3) inset;
-    }
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      transition: width 0.4s ease-out, background 0.4s ease;
-      background-color: var(--level-base); /* Base, se actualiza por JS */
-    }
-    .level-label {
-      font-weight: 700;
-      font-size: 0.9rem;
-      text-shadow: 0 0 8px rgba(0,0,0,0.4);
-    }
-    /* Estilos para nivel VIP */
-    .level-vip-text { color: var(--level-vip); text-shadow: 0 0 12px rgba(0,240,255,0.3); }
-    /* Estilos para nivel Premium */
-    .level-premium-text { color: var(--level-premium); text-shadow: 0 0 12px rgba(255,77,240,0.3); }
+/* Estilo para la barra de progreso en la pantalla principal (opcional: añadir margen inferior para separarla de los productos) */
+#mainLevelBar {
+  margin-bottom: 24px;
+}
   </style>
 </head>
 <body class="text-white p-4 md:p-8 hide-on-main">
   <canvas id="particles"></canvas>
-
   <div class="app-root">
   <div id="hamburgerBtn" class="hamburger" aria-label="Menú">
     <div class="burger">
@@ -310,7 +312,7 @@
     </div>
   </div>
 
-  <div id="menuBackdrop" class="menu-backdrop"></div>
+    <div id="menuBackdrop" class="menu-backdrop"></div>
   <aside id="sideMenu" class="side-menu" aria-hidden="true">
     <div class="menu-user">
       <div class="avatar" id="menuAvatar">UX</div>
@@ -320,42 +322,37 @@
       </div>
     </div>
     <div style="height:8px;"></div>
-    
     <div class="card p-3 rounded-lg border-white/5">
         <div class="flex justify-between items-center mb-1">
-            <div id="userLevelText" class="level-label">Nivel: Base</div>
-            <div id="levelProgressText" class="small-muted text-xs">$0.00 / $50.00</div>
+            <div id="userLevelTextMenu" class="level-label">Nivel: Base</div>
+            <div id="levelProgressTextMenu" class="small-muted text-xs">$0.00 / $50.00</div>
         </div>
         <div class="progress-bar">
-            <div id="levelProgressBar" class="progress-fill" style="width: 0%;"></div>
+            <div id="levelProgressBarMenu" class="progress-fill" style="width: 0%;"></div>
         </div>
-        <div id="levelNextGoal" class="small-muted text-xs mt-1">
+        <div id="levelNextGoalMenu" class="small-muted text-xs mt-1">
             Próx. nivel (VIP): $50.00 (10% Desc.)
         </div>
     </div>
     <div style="height:8px;"></div>
-    <div id="menuPublicaciones" class="menu-item neon-btn">
+<div id="menuPublicaciones" class="menu-item neon-btn">
+
   <div class="text-neon-pink">📦 Publicaciones</div>
   <div class="small-muted">Ir</div>
 </div>
-
 <div id="menuKeys" class="menu-item neon-btn">
   <div class="text-neon-green">🔑 Mis Keys</div>
   <div class="small-muted">Historial</div>
 </div>
-
 <div id="menuLogout" class="menu-item neon-btn">
   <div class="text-neon-pink">🚪 Cerrar sesión</div>
   <div class="small-muted">Salir</div>
 </div>
-
 <div style="flex:1"></div>
-
 <div class="small-muted text-xs">SociosXIT • Menú</div>
+    </aside>
 
-  </aside>
-
-  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 rounded-lg card">
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 rounded-lg card">
     <div class="user-block">
       <h1 class="text-2xl font-bold">Bienvenido, <span id="userName" class="text-blue-300"></span></h1>
       <p class="text-sm text-gray-300">Publicaciones disponibles para ti</p>
@@ -366,23 +363,34 @@
     Cerrar Sesión
   </button>
 </div>
+    </header>
 
-  </header>
-
-  <div class="tabs">
+    <div class="tabs">
     <button id="tabPublicaciones" class="tab-btn active neon-btn">📦 Publicaciones</button>
     <button id="tabKeys" class="tab-btn neon-btn">🔑 Mis Keys</button>
   </div>
 
-  <main id="publicationsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
+    <div id="mainLevelBar" class="card p-4 rounded-xl border-white/5 mb-6">
+        <div class="flex justify-between items-center mb-1">
+            <div id="userLevelTextMain" class="level-label">Nivel: Base</div>
+            <div id="levelProgressTextMain" class="small-muted text-xs">$0.00 / $50.00</div>
+        </div>
+        <div class="progress-bar">
+            <div id="levelProgressBarMain" class="progress-fill" style="width: 0%;"></div>
+        </div>
+        <div id="levelNextGoalMain" class="small-muted text-xs mt-1">
+            Próx. nivel (VIP): $50.00 (10% Desc.)
+        </div>
+    </div>
+    <main id="publicationsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
 
-  <section id="myKeysContainer" class="hidden">
+    <section id="myKeysContainer" class="hidden">
     <h2 class="text-xl font-semibold mb-4">🔒 Historial de Keys compradas</h2>
+  <div class="flex flex-col md:flex-row gap-3 mb-4">
 
-    <div class="flex flex-col md:flex-row gap-3 mb-4">
-  <input id="searchKeyInput" type="text" placeholder="🔍 Buscar por nombre o clave..."
-    class="w-full md:w-1/2 px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400">
-    
+<input id="searchKeyInput" type="text" placeholder="🔍 Buscar por nombre o clave..."
+class="w-full md:w-1/2 px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400">
+
   <select id="filterDateSelect" class="px-3 py-2 rounded-lg bg-gray-800 text-white border border-gray-600 focus:ring-2 focus:ring-blue-400">
     <option value="all">📅 Todos</option>
     <option value="today">Hoy</option>
@@ -390,12 +398,10 @@
     <option value="month">Este mes</option>
   </select>
 </div>
+  <div id="myKeysList" class="grid grid-cols-1 gap-4"></div>
+    </section>
 
-<div id="myKeysList" class="grid grid-cols-1 gap-4"></div>
-
-  </section>
-
-  <div id="confirmModal" class="modal-backdrop">
+    <div id="confirmModal" class="modal-backdrop">
     <div class="modal">
       <div id="confirmContent">
         <div class="text-lg font-semibold mb-2 text-neon-yellow">Confirmar compra</div>
@@ -409,7 +415,7 @@
     </div>
   </div>
 
-  <div id="keyModal" class="modal-backdrop">
+    <div id="keyModal" class="modal-backdrop">
     <div class="modal">
       <div class="text-lg font-semibold mb-2 text-neon-cyan">Clave entregada</div>
       <div id="keyModalContent" class="small-muted">Aquí va la clave</div>
@@ -448,726 +454,747 @@
         };
       }
       for(let i=0;i<PARTICLE_COUNT;i++) particles.push(makeParticle());
+  function resize(){
+    w = canvas.width = innerWidth;
+    h = canvas.height = innerHeight;
+  }
+  addEventListener('resize', ()=>{ resize(); });
 
-      function resize(){
-        w = canvas.width = innerWidth;
-        h = canvas.height = innerHeight;
+  function draw(){
+    ctx.clearRect(0,0,w,h);
+    // subtle background radial gradient for depth
+    const g = ctx.createLinearGradient(0,0,w,h);
+    g.addColorStop(0, 'rgba(10,8,20,0.0)');
+    g.addColorStop(1, 'rgba(6,4,12,0.12)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    // draw particles
+    for(let p of particles){
+      // move
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life--;
+      if(p.x < -20) p.x = w+20;
+      if(p.x > w+20) p.x = -20;
+      if(p.y < -20) p.y = h+20;
+      if(p.y > h+20) p.y = -20;
+      if(p.life <= 0){
+        Object.assign(p, makeParticle());
+        p.x = rand(0,w);
+        p.y = rand(0,h);
       }
-      addEventListener('resize', ()=>{ resize(); });
 
-      function draw(){
-        ctx.clearRect(0,0,w,h);
-        // subtle background radial gradient for depth
-        const g = ctx.createLinearGradient(0,0,w,h);
-        g.addColorStop(0, 'rgba(10,8,20,0.0)');
-        g.addColorStop(1, 'rgba(6,4,12,0.12)');
-        ctx.fillStyle = g;
-        ctx.fillRect(0,0,w,h);
+      // glow
+      ctx.beginPath();
+      const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.glow);
+      grd.addColorStop(0, p.hue);
+      grd.addColorStop(0.15, p.hue.replace('1)', '0.35)'));
+      grd.addColorStop(0.6, p.hue.replace('1)', '0.08)'));
+      grd.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grd;
+      ctx.arc(p.x, p.y, p.r*3 + (p.glow/6), 0, Math.PI*2);
+      ctx.fill();
+    }
 
-        // draw particles
-        for(let p of particles){
-          // move
-          p.x += p.vx;
-          p.y += p.vy;
-          p.life--;
-          if(p.x < -20) p.x = w+20;
-          if(p.x > w+20) p.x = -20;
-          if(p.y < -20) p.y = h+20;
-          if(p.y > h+20) p.y = -20;
-          if(p.life <= 0){
-            Object.assign(p, makeParticle());
-            p.x = rand(0,w);
-            p.y = rand(0,h);
-          }
-
-          // glow
+    // connect close particles gently
+    ctx.lineWidth = 0.6;
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length && j<i+4;j++){
+        const a=particles[i], b=particles[j];
+        const dx=a.x-b.x, dy=a.y-b.y;
+        const d2 = dx*dx+dy*dy;
+        if(d2 < 25000){
+          const alpha = 1 - d2/25000;
+          ctx.strokeStyle = 'rgba(120,200,255,'+ (alpha*0.06) +')';
           ctx.beginPath();
-          const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.glow);
-          grd.addColorStop(0, p.hue);
-          grd.addColorStop(0.15, p.hue.replace('1)', '0.35)'));
-          grd.addColorStop(0.6, p.hue.replace('1)', '0.08)'));
-          grd.addColorStop(1, 'rgba(0,0,0,0)');
-          ctx.fillStyle = grd;
-          ctx.arc(p.x, p.y, p.r*3 + (p.glow/6), 0, Math.PI*2);
-          ctx.fill();
+          ctx.moveTo(a.x,a.y);
+          ctx.lineTo(b.x,b.y);
+          ctx.stroke();
         }
-
-        // connect close particles gently
-        ctx.lineWidth = 0.6;
-        for(let i=0;i<particles.length;i++){
-          for(let j=i+1;j<particles.length && j<i+4;j++){
-            const a=particles[i], b=particles[j];
-            const dx=a.x-b.x, dy=a.y-b.y;
-            const d2 = dx*dx+dy*dy;
-            if(d2 < 25000){
-              const alpha = 1 - d2/25000;
-              ctx.strokeStyle = 'rgba(120,200,255,'+ (alpha*0.06) +')';
-              ctx.beginPath();
-              ctx.moveTo(a.x,a.y);
-              ctx.lineTo(b.x,b.y);
-              ctx.stroke();
-            }
-          }
-        }
-
-        requestAnimationFrame(draw);
-      }
-      resize();
-      draw();
-    })();
-
-    /* ===================== REST OF APP (YOUR LOGIC + NEW LEVEL LOGIC) ===================== */
-
-    // --- Firebase Configuración (unchanged) ---
-    const firebaseConfig = {
-      apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
-      authDomain: "sociosxit-5f841.firebaseapp.com",
-      databaseURL: "https://sociosxit-5f841-default-rtdb.firebaseio.com",
-      projectId: "sociosxit-5f841",
-      storageBucket: "sociosxit-5f841.firebasestorage.app",
-      messagingSenderId: "364183519851",
-      appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const pubsRef = db.ref("publications");
-
-    // UI elements (existing)
-    const userNameEl = document.getElementById("userName");
-    const userBalanceEl = document.getElementById("userBalance");
-    const logoutBtn = document.getElementById("logoutBtn");
-    const publicationsContainer = document.getElementById("publicationsContainer");
-    const myKeysList = document.getElementById("myKeysList");
-    const myKeysContainer = document.getElementById("myKeysContainer");
-
-    // menu elements (new)
-    const hamburgerBtn = document.getElementById("hamburgerBtn");
-    const sideMenu = document.getElementById("sideMenu");
-    const menuBackdrop = document.getElementById("menuBackdrop");
-    const menuUserName = document.getElementById("menuUserName");
-    const menuUserBalance = document.getElementById("menuUserBalance");
-    const menuAvatar = document.getElementById("menuAvatar");
-    const menuPublicaciones = document.getElementById("menuPublicaciones");
-    const menuKeys = document.getElementById("menuKeys");
-    const menuLogout = document.getElementById("menuLogout");
-
-    // existing modals
-    const confirmModal = document.getElementById("confirmModal");
-    const confirmText = document.getElementById("confirmText");
-    const confirmOk = document.getElementById("confirmOk");
-    const confirmCancel = document.getElementById("confirmCancel");
-    const keyModal = document.getElementById("keyModal");
-    const keyModalContent = document.getElementById("keyModalContent");
-    const keyCopyBtn = document.getElementById("keyCopyBtn");
-    const keyCloseBtn = document.getElementById("keyCloseBtn");
-
-    // NEW elements for level/progress bar
-    const finalPriceDisplay = document.getElementById("finalPriceDisplay"); // Added to modal
-    const userLevelText = document.getElementById("userLevelText");
-    const levelProgressText = document.getElementById("levelProgressText");
-    const levelProgressBar = document.getElementById("levelProgressBar");
-    const levelNextGoal = document.getElementById("levelNextGoal");
-
-
-    // Tabs (existing)
-    const tabPublicaciones = document.getElementById("tabPublicaciones");
-    const tabKeys = document.getElementById("tabKeys");
-
-    // --- Tabs functions (unchanged) ---
-    tabPublicaciones.onclick = () => showTab("pubs");
-    tabKeys.onclick = () => showTab("keys");
-    function showTab(tab) {
-      if (tab === "pubs") {
-        publicationsContainer.classList.remove("hidden");
-        myKeysContainer.classList.add("hidden");
-        tabPublicaciones.classList.add("active");
-        tabKeys.classList.remove("active");
-      } else {
-        publicationsContainer.classList.add("hidden");
-        myKeysContainer.classList.remove("hidden");
-        tabPublicaciones.classList.remove("active");
-        tabKeys.classList.add("active");
       }
     }
 
-    // --- Session (unchanged) ---
-    const currentUser = sessionStorage.getItem("sociosxit_user");
-    if (!currentUser) window.location.href = "index.html";
-    else {
-      userNameEl.textContent = currentUser;
-      loadUserBalance(currentUser);
-      loadUserPurchases(currentUser);
-      loadUserSpendingAndLevel(currentUser); // NEW: Load spending and level
-      // also set menu values
-      menuUserName.textContent = currentUser;
-      menuAvatar.textContent = String(currentUser).charAt(0)?.toUpperCase() || "U";
-    }
+    requestAnimationFrame(draw);
+  }
+  resize();
+  draw();
+})();
 
-    logoutBtn.onclick = () => {
-      sessionStorage.removeItem("sociosxit_user");
-      window.location.href = "index.html";
-    };
+/* ===================== REST OF APP (YOUR LOGIC + NEW LEVEL LOGIC) ===================== */
 
-    // menu interactions (open from RIGHT)
-    function openMenu() {
-      sideMenu.classList.add("open");
-      menuBackdrop.style.display = "block";
-      setTimeout(()=> menuBackdrop.style.opacity = "1", 10);
-      hamburgerBtn.classList.add("open");
-      sideMenu.setAttribute("aria-hidden", "false");
-      // menuUserBalance updated by loadUserBalance listener
-    }
-    function closeMenu() {
-      sideMenu.classList.remove("open");
-      menuBackdrop.style.opacity = "0";
-      hamburgerBtn.classList.remove("open");
-      sideMenu.setAttribute("aria-hidden", "true");
-      setTimeout(()=> menuBackdrop.style.display = "none", 240);
-    }
+// --- Firebase Configuración (unchanged) ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
+  authDomain: "sociosxit-5f841.firebaseapp.com",
+  databaseURL: "https://sociosxit-5f841-default-rtdb.firebaseio.com",
+  projectId: "sociosxit-5f841",
+  storageBucket: "sociosxit-5f841.firebasestorage.app",
+  messagingSenderId: "364183519851",
+  appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const pubsRef = db.ref("publications");
 
-    hamburgerBtn.addEventListener("click", ()=> {
-      if (sideMenu.classList.contains("open")) closeMenu();
-      else openMenu();
+// UI elements (existing)
+const userNameEl = document.getElementById("userName");
+const userBalanceEl = document.getElementById("userBalance");
+const logoutBtn = document.getElementById("logoutBtn");
+const publicationsContainer = document.getElementById("publicationsContainer");
+const myKeysList = document.getElementById("myKeysList");
+const myKeysContainer = document.getElementById("myKeysContainer");
+
+// menu elements (new)
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const sideMenu = document.getElementById("sideMenu");
+const menuBackdrop = document.getElementById("menuBackdrop");
+const menuUserName = document.getElementById("menuUserName");
+const menuUserBalance = document.getElementById("menuUserBalance");
+const menuAvatar = document.getElementById("menuAvatar");
+const menuPublicaciones = document.getElementById("menuPublicaciones");
+const menuKeys = document.getElementById("menuKeys");
+const menuLogout = document.getElementById("menuLogout");
+
+// existing modals
+const confirmModal = document.getElementById("confirmModal");
+const confirmText = document.getElementById("confirmText");
+const confirmOk = document.getElementById("confirmOk");
+const confirmCancel = document.getElementById("confirmCancel");
+const keyModal = document.getElementById("keyModal");
+const keyModalContent = document.getElementById("keyModalContent");
+const keyCopyBtn = document.getElementById("keyCopyBtn");
+const keyCloseBtn = document.getElementById("keyCloseBtn");
+
+// NEW elements for level/progress bar
+const finalPriceDisplay = document.getElementById("finalPriceDisplay"); // Added to modal
+
+// ELEMENTS FOR MENU BAR (RENAMED to avoid conflict)
+const userLevelTextMenu = document.getElementById("userLevelTextMenu");
+const levelProgressTextMenu = document.getElementById("levelProgressTextMenu");
+const levelProgressBarMenu = document.getElementById("levelProgressBarMenu");
+const levelNextGoalMenu = document.getElementById("levelNextGoalMenu");
+
+// ELEMENTS FOR MAIN BAR (NEW IDs)
+const userLevelTextMain = document.getElementById("userLevelTextMain");
+const levelProgressTextMain = document.getElementById("levelProgressTextMain");
+const levelProgressBarMain = document.getElementById("levelProgressBarMain");
+const levelNextGoalMain = document.getElementById("levelNextGoalMain");
+
+
+// Tabs (existing)
+const tabPublicaciones = document.getElementById("tabPublicaciones");
+const tabKeys = document.getElementById("tabKeys");
+
+// --- Tabs functions (unchanged) ---
+tabPublicaciones.onclick = () => showTab("pubs");
+tabKeys.onclick = () => showTab("keys");
+function showTab(tab) {
+  if (tab === "pubs") {
+    publicationsContainer.classList.remove("hidden");
+    myKeysContainer.classList.add("hidden");
+    tabPublicaciones.classList.add("active");
+    tabKeys.classList.remove("active");
+  } else {
+    publicationsContainer.classList.add("hidden");
+    myKeysContainer.classList.remove("hidden");
+    tabPublicaciones.classList.remove("active");
+    tabKeys.classList.add("active");
+  }
+}
+
+// --- Session (unchanged) ---
+const currentUser = sessionStorage.getItem("sociosxit_user");
+if (!currentUser) window.location.href = "index.html";
+else {
+  userNameEl.textContent = currentUser;
+  loadUserBalance(currentUser);
+  loadUserPurchases(currentUser);
+  loadUserSpendingAndLevel(currentUser); // NEW: Load spending and level
+  // also set menu values
+  menuUserName.textContent = currentUser;
+  menuAvatar.textContent = String(currentUser).charAt(0)?.toUpperCase() || "U";
+}
+
+logoutBtn.onclick = () => {
+  sessionStorage.removeItem("sociosxit_user");
+  window.location.href = "index.html";
+};
+
+// menu interactions (open from RIGHT)
+function openMenu() {
+  sideMenu.classList.add("open");
+  menuBackdrop.style.display = "block";
+  setTimeout(()=> menuBackdrop.style.opacity = "1", 10);
+  hamburgerBtn.classList.add("open");
+  sideMenu.setAttribute("aria-hidden", "false");
+  // menuUserBalance updated by loadUserBalance listener
+}
+function closeMenu() {
+  sideMenu.classList.remove("open");
+  menuBackdrop.style.opacity = "0";
+  hamburgerBtn.classList.remove("open");
+  sideMenu.setAttribute("aria-hidden", "true");
+  setTimeout(()=> menuBackdrop.style.display = "none", 240);
+}
+
+hamburgerBtn.addEventListener("click", ()=> {
+  if (sideMenu.classList.contains("open")) closeMenu();
+  else openMenu();
+});
+
+// close when clicking backdrop
+menuBackdrop.addEventListener("click", closeMenu);
+
+// change hamburger into X on scroll (as requested) - style only
+window.addEventListener("scroll", () => {
+  const px = window.scrollY || document.documentElement.scrollTop;
+  if (px > 20) hamburgerBtn.classList.add("open");
+  else {
+    // don't remove open if menu is open
+    if (!sideMenu.classList.contains("open")) hamburgerBtn.classList.remove("open");
+  }
+});
+
+// menu item behavior (navigate tabs + close)
+menuPublicaciones.addEventListener("click", ()=> { showTab("pubs"); closeMenu(); });
+menuKeys.addEventListener("click", ()=> { showTab("keys"); closeMenu(); });
+menuLogout.addEventListener("click", ()=> {
+  sessionStorage.removeItem("sociosxit_user");
+  window.location.href = "index.html";
+});
+
+// --- Publicaciones (unchanged logic) ---
+pubsRef.on("value", (snapshot) => {
+  publicationsContainer.innerHTML = "";
+  const data = snapshot.val();
+  if (!data) {
+    publicationsContainer.innerHTML = "<p>No hay publicaciones disponibles.</p>";
+    return;
+  }
+  Object.keys(data).forEach(key => {
+    const pub = data[key];
+    publicationsContainer.prepend(createPublicationElement(pub, key));
+  });
+});
+
+// create publication card (keeps your exact design)
+function createPublicationElement(pub, key) {
+  const div = document.createElement("div");
+  div.className = "card rounded-xl overflow-hidden shadow-lg p-5";
+
+  let mediaHTML = "";
+  if (pub.mediaUrl) {
+    if (pub.mediaUrl.includes("youtube.com") || pub.mediaUrl.includes("youtu.be")) {
+      const videoId = pub.mediaUrl.split('v=')[1] || pub.mediaUrl.split('/').pop();
+      mediaHTML = `
+        <div class="aspect-w-16 aspect-h-9 mb-4">
+          <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="w-full h-full rounded-lg"></iframe>
+        </div>`;
+    } else {
+      mediaHTML = `<img src="${pub.mediaUrl}" alt="${pub.title}" class="w-full h-48 object-cover rounded-lg mb-4">`;
+    }
+  }
+
+  // buttons area: transform the info block into a clickable buy button
+  let buttonsHTML = "";
+  if (pub.buttons) {
+    Object.keys(pub.buttons).forEach(btnKey => {
+      const btn = pub.buttons[btnKey];
+      // price as decimal with two places
+      const priceNum = parseFloat(btn.price || 0);
+      const price = Number.isFinite(priceNum) ? priceNum.toFixed(2) : "0.00";
+      const duration = btn.duration || (btn.days ? `${btn.days} días` : "");
+      const keysCount = countKeys(btn.keys);
+
+      // safe id for DOM
+      const safeBtnId = String(btnKey).replace(/\W/g, "_");
+      // onclick will open confirm modal and pass publish id + btnKey
+      buttonsHTML += `
+        <div class="btn-buy neon-btn p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
+          <button onclick="openConfirmModal('${key}','${safeBtnId}', ${priceNum}, '${btnKey}')" class="w-full text-left">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-2xl font-bold text-neon-cyan">$${price}</div>
+                <div class="text-sm font-semibold text-neon-pink">${duration || '—'}</div>
+                <div class="text-xs small-muted mt-1">🔑 ${keysCount} claves disponibles</div>
+              </div>
+              <div>
+                <div class="py-2 px-3 rounded-full bg-white text-blue-900 font-bold">Comprar</div>
+              </div>
+            </div>
+          </button>
+        </div>`;
     });
+  }
 
-    // close when clicking backdrop
-    menuBackdrop.addEventListener("click", closeMenu);
+  div.innerHTML = `
+    ${mediaHTML}
+    <h2 class="text-2xl font-bold mb-3 text-neon-pink">${pub.title}</h2>
+    <button class="btn-show neon-btn w-full py-2 rounded-lg font-semibold mb-3" onclick="toggleDetails('${key}')">Mostrar Opciones</button>
+    <div id="details-${key}" class="hidden mt-4 space-y-3">${buttonsHTML || "<p class='text-gray-400'>Sin botones disponibles</p>"}</div>
+  `;
+  return div;
+}
 
-    // change hamburger into X on scroll (as requested) - style only
-    window.addEventListener("scroll", () => {
-      const px = window.scrollY || document.documentElement.scrollTop;
-      if (px > 20) hamburgerBtn.classList.add("open");
-      else {
-        // don't remove open if menu is open
-        if (!sideMenu.classList.contains("open")) hamburgerBtn.classList.remove("open");
-      }
+function toggleDetails(key) {
+  const el = document.getElementById(`details-${key}`);
+  if (el) el.classList.toggle("hidden");
+}
+
+// --- Helpers for keys parsing + counting (unchanged) ---
+function countKeys(keysField) {
+  if (!keysField) return 0;
+  if (Array.isArray(keysField)) return keysField.length;
+  if (typeof keysField === "string") {
+    return keysField.split(",").map(s => s.trim()).filter(Boolean).length;
+  }
+  return 0;
+}
+
+function parseKeysField(keysField) {
+  // returns array of objects: { key: "...", usada: false }
+  if (!keysField) return [];
+  if (Array.isArray(keysField)) {
+    return keysField.map(k => {
+      if (typeof k === "string") {
+        const raw = k.trim();
+        const m = raw.match(/key\s*:\s*(.+)/i);
+        const v = m ? m[1].trim() : raw;
+        return { key: v, usada: false };
+      } else if (typeof k === "object" && k.key) {
+        return { key: String(k.key).trim(), usada: !!k.usada };
+      } else return null;
+    }).filter(Boolean);
+  }
+  if (typeof keysField === "string") {
+    const parts = keysField.split(",").map(s => s.trim()).filter(Boolean);
+    return parts.map(p => {
+      const m = p.match(/key\s*:\s*(.+)/i);
+      const v = m ? m[1].trim() : p;
+      return { key: v, usada: false };
     });
+  }
+  return [];
+}
 
-    // menu item behavior (navigate tabs + close)
-    menuPublicaciones.addEventListener("click", ()=> { showTab("pubs"); closeMenu(); });
-    menuKeys.addEventListener("click", ()=> { showTab("keys"); closeMenu(); });
-    menuLogout.addEventListener("click", ()=> {
-      sessionStorage.removeItem("sociosxit_user");
-      window.location.href = "index.html";
-    });
+// write keys back preserving original type (string => string, array => array of objects)
+async function updateKeysField(pubId, btnKeyIdentifier, originalBtn, newKeysArr) {
+  // fetch current publication to avoid clobbering concurrent edits
+  const pubSnap = await db.ref(`publications/${pubId}`).once("value");
+  const pub = pubSnap.val();
+  if (!pub) return;
 
-    // --- Publicaciones (unchanged logic) ---
-    pubsRef.on("value", (snapshot) => {
-      publicationsContainer.innerHTML = "";
-      const data = snapshot.val();
-      if (!data) {
-        publicationsContainer.innerHTML = "<p>No hay publicaciones disponibles.</p>";
-        return;
-      }
-      Object.keys(data).forEach(key => {
-        const pub = data[key];
-        publicationsContainer.prepend(createPublicationElement(pub, key));
-      });
-    });
+  // determine where btn is located
+  if (Array.isArray(pub.buttons)) {
+    const idx = Number(btnKeyIdentifier);
+    if (!Number.isFinite(idx)) return;
+    if (typeof originalBtn.keys === "string") {
+      const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+      await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(s);
+    } else {
+      const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
+      await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(arr);
+    }
+  } else {
+    const prop = btnKeyIdentifier;
+    if (!pub.buttons || !pub.buttons[prop]) return;
+    if (typeof originalBtn.keys === "string") {
+      const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+      await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(s);
+    } else {
+      const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
+      await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(arr);
+    }
+  }
+}
 
-    // create publication card (keeps your exact design)
-    function createPublicationElement(pub, key) {
-      const div = document.createElement("div");
-      div.className = "card rounded-xl overflow-hidden shadow-lg p-5";
 
-      let mediaHTML = "";
-      if (pub.mediaUrl) {
-        if (pub.mediaUrl.includes("youtube.com") || pub.mediaUrl.includes("youtu.be")) {
-          const videoId = pub.mediaUrl.split('v=')[1] || pub.mediaUrl.split('/').pop();
-          mediaHTML = `
-            <div class="aspect-w-16 aspect-h-9 mb-4">
-              <iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="w-full h-full rounded-lg"></iframe>
-            </div>`;
-        } else {
-          mediaHTML = `<img src="${pub.mediaUrl}" alt="${pub.title}" class="w-full h-48 object-cover rounded-lg mb-4">`;
+// --- NEW: Level and Discount Logic ---
+const LEVEL_VIP_SPEND = 50;
+const LEVEL_PREMIUM_SPEND = 150;
+let userTotalSpending = 0; // Global variable to store current spending
+
+/**
+ * Calculates the user's current level and discount based on total spending.
+ * @param {number} spending - The user's total accumulated spending.
+ * @returns {{level: string, discount: number, nextGoal: number, goalLabel: string, progressColor: string}}
+ */
+function calculateLevel(spending) {
+    if (spending >= LEVEL_PREMIUM_SPEND) {
+        return {
+            level: "Premium",
+            discount: 0.20, // 20%
+            nextGoal: LEVEL_PREMIUM_SPEND,
+            goalLabel: "¡Nivel Máximo!",
+            progressColor: "var(--level-premium)"
+        };
+    } else if (spending >= LEVEL_VIP_SPEND) {
+        return {
+            level: "VIP",
+            discount: 0.10, // 10%
+            nextGoal: LEVEL_PREMIUM_SPEND,
+            goalLabel: `Próx. nivel (Premium): $${LEVEL_PREMIUM_SPEND.toFixed(2)} (20% Desc.)`,
+            progressColor: "var(--level-vip)"
+        };
+    } else {
+        return {
+            level: "Base",
+            discount: 0.00, // 0%
+            nextGoal: LEVEL_VIP_SPEND,
+            goalLabel: `Próx. nivel (VIP): $${LEVEL_VIP_SPEND.toFixed(2)} (10% Desc.)`,
+            progressColor: "var(--level-base)"
+        };
+    }
+}
+
+/**
+ * Updates the level bar UI (both menu and main screen).
+ * @param {number} spending - The user's total accumulated spending.
+ */
+function updateLevelUI(spending) {
+    const { level, discount, nextGoal, goalLabel, progressColor } = calculateLevel(spending);
+
+    userTotalSpending = spending; // Update global spending
+
+    // --- Logic for all bars (Menu and Main) ---
+    const bars = [
+        {
+            userLevelText: userLevelTextMenu,
+            levelProgressText: levelProgressTextMenu,
+            levelProgressBar: levelProgressBarMenu,
+            levelNextGoal: levelNextGoalMenu
+        },
+        {
+            userLevelText: userLevelTextMain,
+            levelProgressText: levelProgressTextMain,
+            levelProgressBar: levelProgressBarMain,
+            levelNextGoal: levelNextGoalMain
         }
-      }
+    ];
 
-      // buttons area: transform the info block into a clickable buy button
-      let buttonsHTML = "";
-      if (pub.buttons) {
-        Object.keys(pub.buttons).forEach(btnKey => {
-          const btn = pub.buttons[btnKey];
-          // price as decimal with two places
-          const priceNum = parseFloat(btn.price || 0);
-          const price = Number.isFinite(priceNum) ? priceNum.toFixed(2) : "0.00";
-          const duration = btn.duration || (btn.days ? `${btn.days} días` : "");
-          const keysCount = countKeys(btn.keys);
+    bars.forEach(bar => {
+        if (!bar.userLevelText) return; // Skip if element not found (e.g., if you only use one bar)
 
-          // safe id for DOM
-          const safeBtnId = String(btnKey).replace(/\W/g, "_");
-          // onclick will open confirm modal and pass publish id + btnKey
-          buttonsHTML += `
-            <div class="btn-buy neon-btn p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
-              <button onclick="openConfirmModal('${key}','${safeBtnId}', ${priceNum}, '${btnKey}')" class="w-full text-left">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-2xl font-bold text-neon-cyan">$${price}</div>
-                    <div class="text-sm font-semibold text-neon-pink">${duration || '—'}</div>
-                    <div class="text-xs small-muted mt-1">🔑 ${keysCount} claves disponibles</div>
-                  </div>
-                  <div>
-                    <div class="py-2 px-3 rounded-full bg-white text-blue-900 font-bold">Comprar</div>
-                  </div>
-                </div>
-              </button>
-            </div>`;
-        });
-      }
+        bar.userLevelText.textContent = `Nivel: ${level}`;
+        bar.userLevelText.className = `level-label ${level === 'VIP' ? 'level-vip-text' : level === 'Premium' ? 'level-premium-text' : ''}`;
 
-      div.innerHTML = `
-        ${mediaHTML}
-        <h2 class="text-2xl font-bold mb-3 text-neon-pink">${pub.title}</h2>
-        <button class="btn-show neon-btn w-full py-2 rounded-lg font-semibold mb-3" onclick="toggleDetails('${key}')">Mostrar Opciones</button>
-        <div id="details-${key}" class="hidden mt-4 space-y-3">${buttonsHTML || "<p class='text-gray-400'>Sin botones disponibles</p>"}</div>
-      `;
-      return div;
-    }
+        bar.levelNextGoal.textContent = goalLabel;
 
-    function toggleDetails(key) {
-      const el = document.getElementById(`details-${key}`);
-      if (el) el.classList.toggle("hidden");
-    }
-
-    // --- Helpers for keys parsing + counting (unchanged) ---
-    function countKeys(keysField) {
-      if (!keysField) return 0;
-      if (Array.isArray(keysField)) return keysField.length;
-      if (typeof keysField === "string") {
-        return keysField.split(",").map(s => s.trim()).filter(Boolean).length;
-      }
-      return 0;
-    }
-
-    function parseKeysField(keysField) {
-      // returns array of objects: { key: "...", usada: false }
-      if (!keysField) return [];
-      if (Array.isArray(keysField)) {
-        return keysField.map(k => {
-          if (typeof k === "string") {
-            const raw = k.trim();
-            const m = raw.match(/key\s*:\s*(.+)/i);
-            const v = m ? m[1].trim() : raw;
-            return { key: v, usada: false };
-          } else if (typeof k === "object" && k.key) {
-            return { key: String(k.key).trim(), usada: !!k.usada };
-          } else return null;
-        }).filter(Boolean);
-      }
-      if (typeof keysField === "string") {
-        const parts = keysField.split(",").map(s => s.trim()).filter(Boolean);
-        return parts.map(p => {
-          const m = p.match(/key\s*:\s*(.+)/i);
-          const v = m ? m[1].trim() : p;
-          return { key: v, usada: false };
-        });
-      }
-      return [];
-    }
-
-    // write keys back preserving original type (string => string, array => array of objects)
-    async function updateKeysField(pubId, btnKeyIdentifier, originalBtn, newKeysArr) {
-      // fetch current publication to avoid clobbering concurrent edits
-      const pubSnap = await db.ref(`publications/${pubId}`).once("value");
-      const pub = pubSnap.val();
-      if (!pub) return;
-
-      // determine where btn is located
-      if (Array.isArray(pub.buttons)) {
-        const idx = Number(btnKeyIdentifier);
-        if (!Number.isFinite(idx)) return;
-        if (typeof originalBtn.keys === "string") {
-          const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
-          await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(s);
-        } else {
-          const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
-          await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(arr);
-        }
-      } else {
-        const prop = btnKeyIdentifier;
-        if (!pub.buttons || !pub.buttons[prop]) return;
-        if (typeof originalBtn.keys === "string") {
-          const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
-          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(s);
-        } else {
-          const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
-          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(arr);
-        }
-      }
-    }
-
-
-    // --- NEW: Level and Discount Logic ---
-    const LEVEL_VIP_SPEND = 50;
-    const LEVEL_PREMIUM_SPEND = 150;
-    let userTotalSpending = 0; // Global variable to store current spending
-
-    /**
-     * Calculates the user's current level and discount based on total spending.
-     * @param {number} spending - The user's total accumulated spending.
-     * @returns {{level: string, discount: number, nextGoal: number, goalLabel: string, progressColor: string}}
-     */
-    function calculateLevel(spending) {
-        if (spending >= LEVEL_PREMIUM_SPEND) {
-            return {
-                level: "Premium",
-                discount: 0.20, // 20%
-                nextGoal: LEVEL_PREMIUM_SPEND,
-                goalLabel: "¡Nivel Máximo!",
-                progressColor: "var(--level-premium)"
-            };
-        } else if (spending >= LEVEL_VIP_SPEND) {
-            return {
-                level: "VIP",
-                discount: 0.10, // 10%
-                nextGoal: LEVEL_PREMIUM_SPEND,
-                goalLabel: `Próx. nivel (Premium): $${LEVEL_PREMIUM_SPEND.toFixed(2)} (20% Desc.)`,
-                progressColor: "var(--level-vip)"
-            };
-        } else {
-            return {
-                level: "Base",
-                discount: 0.00, // 0%
-                nextGoal: LEVEL_VIP_SPEND,
-                goalLabel: `Próx. nivel (VIP): $${LEVEL_VIP_SPEND.toFixed(2)} (10% Desc.)`,
-                progressColor: "var(--level-base)"
-            };
-        }
-    }
-
-    /**
-     * Updates the level bar UI.
-     * @param {number} spending - The user's total accumulated spending.
-     */
-    function updateLevelUI(spending) {
-        const { level, discount, nextGoal, goalLabel, progressColor } = calculateLevel(spending);
-        
-        userTotalSpending = spending; // Update global spending
-
-        userLevelText.textContent = `Nivel: ${level}`;
-        userLevelText.className = `level-label ${level === 'VIP' ? 'level-vip-text' : level === 'Premium' ? 'level-premium-text' : ''}`;
-        
-        levelNextGoal.textContent = goalLabel;
-        
         let percentage = 0;
-        let progressTo = LEVEL_VIP_SPEND; // Default to first level
-        
+
         if (spending < LEVEL_VIP_SPEND) {
-            progressTo = LEVEL_VIP_SPEND;
-            percentage = (spending / progressTo) * 100;
-            levelProgressText.textContent = `$${spending.toFixed(2)} / $${LEVEL_VIP_SPEND.toFixed(2)}`;
+            percentage = (spending / LEVEL_VIP_SPEND) * 100;
+            bar.levelProgressText.textContent = `$${spending.toFixed(2)} / $${LEVEL_VIP_SPEND.toFixed(2)}`;
         } else if (spending < LEVEL_PREMIUM_SPEND) {
-            // Progress is from VIP to Premium, on a scale of 100 (150-50)
-            progressTo = LEVEL_PREMIUM_SPEND;
-            const progressRange = LEVEL_PREMIUM_SPEND - LEVEL_VIP_SPEND; // 100
-            const amountInLevel = spending - LEVEL_VIP_SPEND;
-            percentage = ((LEVEL_VIP_SPEND / progressTo) * 100) + ((amountInLevel / progressRange) * (100 - (LEVEL_VIP_SPEND / progressTo) * 100));
-            
             // Simplified: calculate progress based on total goal (150)
             percentage = (spending / LEVEL_PREMIUM_SPEND) * 100;
-            levelProgressText.textContent = `$${spending.toFixed(2)} / $${LEVEL_PREMIUM_SPEND.toFixed(2)}`;
+            bar.levelProgressText.textContent = `$${spending.toFixed(2)} / $${LEVEL_PREMIUM_SPEND.toFixed(2)}`;
         } else {
             // Max level reached
             percentage = 100;
-            levelProgressText.textContent = `¡Nivel Máximo! ($${spending.toFixed(2)})`;
+            bar.levelProgressText.textContent = `¡Nivel Máximo! ($${spending.toFixed(2)})`;
         }
 
-        levelProgressBar.style.width = `${Math.min(percentage, 100).toFixed(2)}%`;
-        levelProgressBar.style.backgroundColor = progressColor;
-    }
+        bar.levelProgressBar.style.width = `${Math.min(percentage, 100).toFixed(2)}%`;
+        bar.levelProgressBar.style.backgroundColor = progressColor;
+    });
 
-    /**
-     * Loads the user's total accumulated spending in real-time.
-     */
-    function loadUserSpendingAndLevel(email) {
-        const userKey = sanitizeEmail(email);
-        const purchasesRef = db.ref(`users/${userKey}/purchases`);
-        
-        purchasesRef.on("value", snap => {
-            const purchases = snap.val();
-            let totalSpent = 0;
-            if (purchases) {
-                Object.values(purchases).forEach(p => {
-                    totalSpent += parseFloat(p.price || 0); // Price saved in history is the ACTUAL PRICE PAID
-                });
-            }
-            // Use original price from purchase for calculation to avoid double counting discounts
-            // Sum all "price" fields from the purchase history (which is the actual amount spent).
-            // NOTE: This assumes 'price' in purchases history reflects the amount PAID.
-            
-            updateLevelUI(totalSpent);
-        });
-    }
+}
 
-    // --- Confirm modal flow (MODIFIED to show discounted price) ---
-    let _pendingPurchase = null; // { pubId, btnId, price, rawBtnId, finalPrice }
+/**
+ * Loads the user's total accumulated spending in real-time.
+ */
+function loadUserSpendingAndLevel(email) {
+    const userKey = sanitizeEmail(email);
+    const purchasesRef = db.ref(`users/${userKey}/purchases`);
 
-    function openConfirmModal(pubId, safeBtnId, price, rawBtnId) {
-        // Calculate discounted price
-        const { discount } = calculateLevel(userTotalSpending);
-        const discountAmount = price * discount;
-        const finalPrice = price - discountAmount;
-
-        confirmModal.style.display = "flex";
-        
-        confirmText.textContent = `¿Deseas comprar esta key? Precio base: $${Number(price).toFixed(2)} USD`;
-        
-        if (discount > 0) {
-            finalPriceDisplay.innerHTML = `
-                <span class="text-xl font-bold text-neon-green">
-                    Precio Final: $${finalPrice.toFixed(2)} USD
-                </span>
-                <span class="text-sm text-neon-cyan ml-2">
-                    (-${(discount * 100)}% Desc. ${calculateLevel(userTotalSpending).level})
-                </span>
-            `;
-        } else {
-            finalPriceDisplay.textContent = `Precio Final: $${finalPrice.toFixed(2)} USD`;
-            finalPriceDisplay.classList.remove("text-neon-green");
-            finalPriceDisplay.classList.remove("text-xl");
-            finalPriceDisplay.classList.add("text-neon-yellow");
+    purchasesRef.on("value", snap => {
+        const purchases = snap.val();
+        let totalSpent = 0;
+        if (purchases) {
+            Object.values(purchases).forEach(p => {
+                totalSpent += parseFloat(p.price || 0); // Price saved in history is the ACTUAL PRICE PAID
+            });
         }
+        // Use original price from purchase for calculation to avoid double counting discounts
+        // Sum all "price" fields from the purchase history (which is the actual amount spent).
+        // NOTE: This assumes 'price' in purchases history reflects the amount PAID.
 
-        // Store the final price to use in the comprarKey function
-        _pendingPurchase = { pubId, safeBtnId, price: Number(price), rawBtnId, finalPrice: finalPrice };
-    }
-    
-    confirmCancel.onclick = () => {
-      confirmModal.style.display = "none";
-      _pendingPurchase = null;
-    };
-    confirmOk.onclick = async () => {
-      if (!_pendingPurchase) return;
-      confirmModal.style.display = "none";
-      // Pass the discounted price to the purchase function
-      await comprarKey(_pendingPurchase.pubId, _pendingPurchase.safeBtnId, _pendingPurchase.price, _pendingPurchase.rawBtnId, _pendingPurchase.finalPrice);
-      _pendingPurchase = null;
-    };
+        updateLevelUI(totalSpent);
+    });
+}
 
+// --- Confirm modal flow (MODIFIED to show discounted price) ---
+let _pendingPurchase = null; // { pubId, btnId, price, rawBtnId, finalPrice }
 
-    // --- Main purchase function (MODIFIED to use finalPrice and save originalPrice) ---
-    async function comprarKey(pubId, safeBtnId, originalPrice, rawBtnId, finalPrice) {
-      try {
-        const email = currentUser;
-        const userKey = sanitizeEmail(email);
-        const userRef = db.ref(`users/${userKey}`);
+function openConfirmModal(pubId, safeBtnId, price, rawBtnId) {
+    // Calculate discounted price
+    const { discount } = calculateLevel(userTotalSpending);
+    const discountAmount = price * discount;
+    const finalPrice = price - discountAmount;
 
-        // get balance (support string or number)
-        const balSnap = await userRef.child("balance").once("value");
-        let balance = parseFloat(balSnap.val() || 0);
-        if (isNaN(balance)) balance = 0;
+    confirmModal.style.display = "flex";
 
-        // Use finalPrice for the deduction check
-        if (balance < finalPrice) {
-          alert("⚠️ No tienes saldo suficiente para esta compra.");
-          return;
-        }
+    confirmText.textContent = `¿Deseas comprar esta key? Precio base: $${Number(price).toFixed(2)} USD`;
 
-        // load latest publication data
-        const pubSnap = await db.ref(`publications/${pubId}`).once("value");
-        const pub = pubSnap.val();
-        if (!pub) { alert("Publicación no encontrada."); return; }
-
-        // find the original button object (array index or property)
-        let originalBtn = null;
-        let btnIndexOrKey = null;
-        if (Array.isArray(pub.buttons)) {
-          const idx = Number(safeBtnId);
-          originalBtn = pub.buttons[idx];
-          btnIndexOrKey = idx;
-        } else {
-          // try direct property
-          if (pub.buttons.hasOwnProperty(rawBtnId)) {
-            originalBtn = pub.buttons[rawBtnId];
-            btnIndexOrKey = rawBtnId;
-          } else {
-            // fallback: find by index order mapping
-            const keys = Object.keys(pub.buttons || {});
-            const idx = Number(safeBtnId);
-            if (Number.isFinite(idx) && keys[idx]) {
-              btnIndexOrKey = keys[idx];
-              originalBtn = pub.buttons[btnIndexOrKey];
-            }
-          }
-        }
-
-        if (!originalBtn) { alert("Opción no encontrada."); return; }
-
-        // parse keys and pick first available
-        const keysArr = parseKeysField(originalBtn.keys);
-        if (!keysArr.length) { alert("❌ No quedan claves disponibles para esta opción."); return; }
-        // choose first available (you asked earlier to "take first")
-        const selected = keysArr[0];
-
-        // 1) update balance (atomic-ish: read again then set)
-        const balSnap2 = await userRef.child("balance").once("value");
-        let balanceNow = parseFloat(balSnap2.val() || 0);
-        if (isNaN(balanceNow)) balanceNow = 0;
-        if (balanceNow < finalPrice) { alert("⚠️ Saldo insuficiente."); return; } // Check against final price
-        
-        const newBalance = (balanceNow - finalPrice); // Deduct final price
-        await userRef.child("balance").set(Number(newBalance.toFixed(2)));
-
-        // 2) remove selected key from keys array (do not leave it visible)
-        const updatedKeys = keysArr.slice(); // copy
-        updatedKeys.shift(); // remove first
-        await updateKeysField(pubId, btnIndexOrKey, originalBtn, updatedKeys);
-
-        // 3) save purchase in user history
-        const purchaseRef = userRef.child("purchases").push();
-        await purchaseRef.set({
-          pubId,
-          title: pub.title || "",
-          optionText: originalBtn.text || originalBtn.option || "",
-          key: selected.key,
-          price: Number(finalPrice), // Store the price ACTUALLY PAID for history/level calc
-          originalPrice: Number(originalPrice), // NEW: Store original price
-          discountApplied: Number(originalPrice - finalPrice).toFixed(2), // NEW: Store discount amount
-          days: originalBtn.days || originalBtn.duration || "",
-          date: new Date().toISOString()
-        });
-
-        // 4) show key modal with copy button
-        keyModalContent.innerHTML = `
-          <div class="small-muted mb-2">${pub.title || "Producto" } • ${originalBtn.text || ""}</div>
-          <div class="mono text-green-300 font-semibold p-2 rounded">${selected.key}</div>
+    if (discount > 0) {
+        finalPriceDisplay.innerHTML = `
+            <span class="text-xl font-bold text-neon-green">
+                Precio Final: $${finalPrice.toFixed(2)} USD
+            </span>
+            <span class="text-sm text-neon-cyan ml-2">
+                (-${(discount * 100)}% Desc. ${calculateLevel(userTotalSpending).level})
+            </span>
         `;
-        keyModal.style.display = "flex";
+    } else {
+        finalPriceDisplay.textContent = `Precio Final: $${finalPrice.toFixed(2)} USD`;
+        finalPriceDisplay.classList.remove("text-neon-green");
+        finalPriceDisplay.classList.remove("text-xl");
+        finalPriceDisplay.classList.add("text-neon-yellow");
+    }
 
-        // set copy button behavior
-        keyCopyBtn.onclick = async () => {
-          try {
-            await navigator.clipboard.writeText(selected.key);
-            alert("🔑 Clave copiada al portapapeles.");
-          } catch {
-            alert("No se pudo copiar automáticamente. Selecciona y copia manualmente.");
-          }
-        };
-        keyCloseBtn.onclick = () => {
-          keyModal.style.display = "none";
-        };
+    // Store the final price to use in the comprarKey function
+    _pendingPurchase = { pubId, safeBtnId, price: Number(price), rawBtnId, finalPrice: finalPrice };
+}
 
-        // 5) update UI balance (listener will also update but we set immediate)
-        userBalanceEl.textContent = `$${Number(newBalance).toFixed(2)}`;
-        
-        // 6) Re-calculate level and update UI (loadUserSpendingAndLevel listener will do this automatically)
+confirmCancel.onclick = () => {
+  confirmModal.style.display = "none";
+  _pendingPurchase = null;
+};
+confirmOk.onclick = async () => {
+  if (!_pendingPurchase) return;
+  confirmModal.style.display = "none";
+  // Pass the discounted price to the purchase function
+  await comprarKey(_pendingPurchase.pubId, _pendingPurchase.safeBtnId, _pendingPurchase.price, _pendingPurchase.rawBtnId, _pendingPurchase.finalPrice);
+  _pendingPurchase = null;
+};
 
-        // refresh purchases list if open
-        if (tabKeys.classList.contains("active")) {
-          loadUserPurchases(currentUser);
+
+// --- Main purchase function (MODIFIED to use finalPrice and save originalPrice) ---
+async function comprarKey(pubId, safeBtnId, originalPrice, rawBtnId, finalPrice) {
+  try {
+    const email = currentUser;
+    const userKey = sanitizeEmail(email);
+    const userRef = db.ref(`users/${userKey}`);
+
+    // get balance (support string or number)
+    const balSnap = await userRef.child("balance").once("value");
+    let balance = parseFloat(balSnap.val() || 0);
+    if (isNaN(balance)) balance = 0;
+
+    // Use finalPrice for the deduction check
+    if (balance < finalPrice) {
+      alert("⚠️ No tienes saldo suficiente para esta compra.");
+      return;
+    }
+
+    // load latest publication data
+    const pubSnap = await db.ref(`publications/${pubId}`).once("value");
+    const pub = pubSnap.val();
+    if (!pub) { alert("Publicación no encontrada."); return; }
+
+    // find the original button object (array index or property)
+    let originalBtn = null;
+    let btnIndexOrKey = null;
+    if (Array.isArray(pub.buttons)) {
+      const idx = Number(safeBtnId);
+      originalBtn = pub.buttons[idx];
+      btnIndexOrKey = idx;
+    } else {
+      // try direct property
+      if (pub.buttons.hasOwnProperty(rawBtnId)) {
+        originalBtn = pub.buttons[rawBtnId];
+        btnIndexOrKey = rawBtnId;
+      } else {
+        // fallback: find by index order mapping
+        const keys = Object.keys(pub.buttons || {});
+        const idx = Number(safeBtnId);
+        if (Number.isFinite(idx) && keys[idx]) {
+          btnIndexOrKey = keys[idx];
+          originalBtn = pub.buttons[btnIndexOrKey];
         }
-      } catch (err) {
-        console.error(err);
-        alert("Ocurrió un error al procesar la compra.");
       }
     }
 
-    // --- sanitize email (unchanged) ---
-    function sanitizeEmail(email) {
-      return email.replace(/\./g, "_");
+    if (!originalBtn) { alert("Opción no encontrada."); return; }
+
+    // parse keys and pick first available
+    const keysArr = parseKeysField(originalBtn.keys);
+    if (!keysArr.length) { alert("❌ No quedan claves disponibles para esta opción."); return; }
+    // choose first available (you asked earlier to "take first")
+    const selected = keysArr[0];
+
+    // 1) update balance (atomic-ish: read again then set)
+    const balSnap2 = await userRef.child("balance").once("value");
+    let balanceNow = parseFloat(balSnap2.val() || 0);
+    if (isNaN(balanceNow)) balanceNow = 0;
+    if (balanceNow < finalPrice) { alert("⚠️ Saldo insuficiente."); return; } // Check against final price
+
+    const newBalance = (balanceNow - finalPrice); // Deduct final price
+    await userRef.child("balance").set(Number(newBalance.toFixed(2)));
+
+    // 2) remove selected key from keys array (do not leave it visible)
+    const updatedKeys = keysArr.slice(); // copy
+    updatedKeys.shift(); // remove first
+    await updateKeysField(pubId, btnIndexOrKey, originalBtn, updatedKeys);
+
+    // 3) save purchase in user history
+    const purchaseRef = userRef.child("purchases").push();
+    await purchaseRef.set({
+      pubId,
+      title: pub.title || "",
+      optionText: originalBtn.text || originalBtn.option || "",
+      key: selected.key,
+      price: Number(finalPrice), // Store the price ACTUALLY PAID for history/level calc
+      originalPrice: Number(originalPrice), // NEW: Store original price
+      discountApplied: Number(originalPrice - finalPrice).toFixed(2), // NEW: Store discount amount
+      days: originalBtn.days || originalBtn.duration || "",
+      date: new Date().toISOString()
+    });
+
+    // 4) show key modal with copy button
+    keyModalContent.innerHTML = `
+      <div class="small-muted mb-2">${pub.title || "Producto" } • ${originalBtn.text || ""}</div>
+      <div class="mono text-green-300 font-semibold p-2 rounded">${selected.key}</div>
+    `;
+    keyModal.style.display = "flex";
+
+    // set copy button behavior
+    keyCopyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(selected.key);
+        alert("🔑 Clave copiada al portapapeles.");
+      } catch {
+        alert("No se pudo copiar automáticamente. Selecciona y copia manualmente.");
+      }
+    };
+    keyCloseBtn.onclick = () => {
+      keyModal.style.display = "none";
+    };
+
+    // 5) update UI balance (listener will also update but we set immediate)
+    userBalanceEl.textContent = `$${Number(newBalance).toFixed(2)}`;
+
+    // 6) Re-calculate level and update UI (loadUserSpendingAndLevel listener will do this automatically)
+
+    // refresh purchases list if open
+    if (tabKeys.classList.contains("active")) {
+      loadUserPurchases(currentUser);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Ocurrió un error al procesar la compra.");
+  }
+}
+
+// --- sanitize email (unchanged) ---
+function sanitizeEmail(email) {
+  return email.replace(/\./g, "_");
+}
+
+// --- load user balance (real-time) (unchanged, but also updates menu) ---
+function loadUserBalance(email) {
+  const userKey = sanitizeEmail(email);
+  db.ref(`users/${userKey}/balance`).on("value", snap => {
+    const balance = parseFloat(snap.val() || 0) || 0;
+    const formatted = `$${Number(balance).toFixed(2)}`;
+    userBalanceEl.textContent = formatted;
+    // also update menu display
+    menuUserBalance.textContent = `Saldo: ${formatted}`;
+  });
+}
+
+// --- Historial (Mis Keys) with search & filter (MODIFIED to show original/final price) ---
+function loadUserPurchases(email) {
+  const userKey = sanitizeEmail(email);
+  const purchasesRef = db.ref(`users/${userKey}/purchases`);
+  const searchInput = document.getElementById("searchKeyInput");
+  const filterSelect = document.getElementById("filterDateSelect");
+  let allPurchases = [];
+
+  purchasesRef.on("value", (snapshot) => {
+    const data = snapshot.val();
+    if (!data) {
+      myKeysList.innerHTML = "<p class='small-muted'>No has comprado claves aún.</p>";
+      allPurchases = [];
+      return;
+    }
+    allPurchases = Object.keys(data).map(k => ({ id: k, ...data[k] })).reverse();
+    renderPurchases();
+  });
+
+  function renderPurchases() {
+    const term = (searchInput.value || "").toLowerCase();
+    const filter = filterSelect.value;
+    const now = new Date();
+    myKeysList.innerHTML = "";
+
+    const filtered = allPurchases.filter(it => {
+      const title = (it.title || "").toLowerCase();
+      const keyVal = (it.key || "").toLowerCase();
+      const matchTerm = !term || title.includes(term) || keyVal.includes(term);
+
+      const date = new Date(it.date);
+      const diffDays = (now - date) / (1000 * 60 * 60 * 24);
+      let matchDate = true;
+      if (filter === "today") matchDate = diffDays < 1;
+      else if (filter === "7days") matchDate = diffDays <= 7;
+      else if (filter === "month") matchDate = date.getMonth() === now.getMonth();
+
+      return matchTerm && matchDate;
+    });
+
+    if (!filtered.length) {
+      myKeysList.innerHTML = "<p class='small-muted'>No hay resultados para tu búsqueda.</p>";
+      return;
     }
 
-    // --- load user balance (real-time) (unchanged, but also updates menu) ---
-    function loadUserBalance(email) {
-      const userKey = sanitizeEmail(email);
-      db.ref(`users/${userKey}/balance`).on("value", snap => {
-        const balance = parseFloat(snap.val() || 0) || 0;
-        const formatted = `$${Number(balance).toFixed(2)}`;
-        userBalanceEl.textContent = formatted;
-        // also update menu display
-        menuUserBalance.textContent = `Saldo: ${formatted}`;
-      });
-    }
+    filtered.forEach(it => {
+      const div = document.createElement("div");
+      div.className = "card rounded-lg p-4 transition-transform hover:scale-[1.01]";
+      const date = new Date(it.date).toLocaleString();
+      const finalPrice = parseFloat(it.price || 0).toFixed(2);
+      const originalPrice = parseFloat(it.originalPrice || finalPrice).toFixed(2);
+      const discountApplied = parseFloat(it.discountApplied || 0).toFixed(2);
 
-    // --- Historial (Mis Keys) with search & filter (MODIFIED to show original/final price) ---
-    function loadUserPurchases(email) {
-      const userKey = sanitizeEmail(email);
-      const purchasesRef = db.ref(`users/${userKey}/purchases`);
-      const searchInput = document.getElementById("searchKeyInput");
-      const filterSelect = document.getElementById("filterDateSelect");
-      let allPurchases = [];
-
-      purchasesRef.on("value", (snapshot) => {
-        const data = snapshot.val();
-        if (!data) {
-          myKeysList.innerHTML = "<p class='small-muted'>No has comprado claves aún.</p>";
-          allPurchases = [];
-          return;
-        }
-        allPurchases = Object.keys(data).map(k => ({ id: k, ...data[k] })).reverse();
-        renderPurchases();
-      });
-
-      function renderPurchases() {
-        const term = (searchInput.value || "").toLowerCase();
-        const filter = filterSelect.value;
-        const now = new Date();
-        myKeysList.innerHTML = "";
-
-        const filtered = allPurchases.filter(it => {
-          const title = (it.title || "").toLowerCase();
-          const keyVal = (it.key || "").toLowerCase();
-          const matchTerm = !term || title.includes(term) || keyVal.includes(term);
-
-          const date = new Date(it.date);
-          const diffDays = (now - date) / (1000 * 60 * 60 * 24);
-          let matchDate = true;
-          if (filter === "today") matchDate = diffDays < 1;
-          else if (filter === "7days") matchDate = diffDays <= 7;
-          else if (filter === "month") matchDate = date.getMonth() === now.getMonth();
-
-          return matchTerm && matchDate;
-        });
-
-        if (!filtered.length) {
-          myKeysList.innerHTML = "<p class='small-muted'>No hay resultados para tu búsqueda.</p>";
-          return;
-        }
-
-        filtered.forEach(it => {
-          const div = document.createElement("div");
-          div.className = "card rounded-lg p-4 transition-transform hover:scale-[1.01]";
-          const date = new Date(it.date).toLocaleString();
-          const finalPrice = parseFloat(it.price || 0).toFixed(2);
-          const originalPrice = parseFloat(it.originalPrice || finalPrice).toFixed(2);
-          const discountApplied = parseFloat(it.discountApplied || 0).toFixed(2);
-          
-          let priceHTML = `<div class="font-bold text-green-400">$${finalPrice}</div>`;
-          if (discountApplied > 0.01) {
-              priceHTML = `
-                <div class="small-muted line-through text-sm">$${originalPrice}</div>
-                <div class="font-bold text-green-400">$${finalPrice}</div>
-                <div class="text-xs text-neon-cyan">(-$${discountApplied} Desc.)</div>
-              `;
-          }
-
-          div.innerHTML = `
-            <div class="flex flex-col md:flex-row justify-between items-start gap-2">
-              <div>
-                <div class="text-lg font-semibold">${it.title || "Sin título"}</div>
-                <div class="small-muted">${it.optionText || ""} • ${it.days || ""}</div>
-                <div class="small-muted mt-2">📅 ${date}</div>
-              </div>
-              <div class="text-left md:text-right">
-                ${priceHTML}
-                <div class="mono text-sm text-green-300 mt-2 break-all">${it.key}</div>
-                <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-3 rounded" onclick="copiarKey('${it.key}')">Copiar</button>
-              </div>
-            </div>`;
-          myKeysList.appendChild(div);
-        });
+      let priceHTML = `<div class="font-bold text-green-400">$${finalPrice}</div>`;
+      if (discountApplied > 0.01) {
+          priceHTML = `
+            <div class="small-muted line-through text-sm">$${originalPrice}</div>
+            <div class="font-bold text-green-400">$${finalPrice}</div>
+            <div class="text-xs text-neon-cyan">(-$${discountApplied} Desc.)</div>
+          `;
       }
 
-      searchInput.oninput = renderPurchases;
-      filterSelect.onchange = renderPurchases;
-    }
+      div.innerHTML = `
+        <div class="flex flex-col md:flex-row justify-between items-start gap-2">
+          <div>
+            <div class="text-lg font-semibold">${it.title || "Sin título"}</div>
+            <div class="small-muted">${it.optionText || ""} • ${it.days || ""}</div>
+            <div class="small-muted mt-2">📅 ${date}</div>
+          </div>
+          <div class="text-left md:text-right">
+            ${priceHTML}
+            <div class="mono text-sm text-green-300 mt-2 break-all">${it.key}</div>
+            <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-3 rounded" onclick="copiarKey('${it.key}')">Copiar</button>
+          </div>
+        </div>`;
+      myKeysList.appendChild(div);
+    });
+  }
 
-    function copiarKey(text) {
-      navigator.clipboard.writeText(text).then(() => alert("🔑 Clave copiada al portapapeles."));
-    }
+  searchInput.oninput = renderPurchases;
+  filterSelect.onchange = renderPurchases;
+}
 
-    // show publications by default
-    showTab("pubs");
+function copiarKey(text) {
+  navigator.clipboard.writeText(text).then(() => alert("🔑 Clave copiada al portapapeles."));
+}
+
+// show publications by default
+showTab("pubs");
+
   </script>
 </body>
 </html>
