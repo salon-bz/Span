@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -746,36 +747,109 @@ function countKeys(keysField) {
   return 0;
 }
 
-function parseKeysField(keysField) {
-  // returns array of objects: { key: "...", usada: false }
-  if (!keysField) return [];
-  if (Array.isArray(keysField)) {
-    return keysField.map(k => {
-      if (typeof k === "string") {
-        const raw = k.trim();
-        const m = raw.match(/key\s*:\s*(.+)/i);
-        const v = m ? m[1].trim() : raw;
-        return { key: v, usada: false };
-      } else if (typeof k === "object" && k.key) {
-        return { key: String(k.key).trim(), usada: !!k.usada };
-      } else return null;
-    }).filter(Boolean);
-  }
-  if (typeof keysField === "string") {
-    const parts = keysField.split(",").map(s => s.trim()).filter(Boolean);
-    return parts.map(p => {
-      const m = p.match(/key\s*:\s*(.+)/i);
-      const v = m ? m[1].trim() : p;
-      return { key: v, usada: false };
-    });
-  }
-  return [];
+// ===============================
+// MODAL DE CONFIRMACIÓN DE COMPRA
+// ===============================
+const confirmModal = document.createElement("div");
+confirmModal.className = "fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-50";
+confirmModal.innerHTML = `
+  <div class="bg-gray-900 text-white rounded-2xl p-6 w-80 shadow-2xl border border-purple-600">
+    <h2 class="text-xl font-bold mb-3 text-center text-purple-400">Confirmar compra</h2>
+    <p id="confirmMessage" class="text-center mb-6 text-gray-300"></p>
+    <div class="flex justify-center gap-4">
+      <button id="confirmCancel" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm">Cancelar</button>
+      <button id="confirmOk" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-sm">Confirmar</button>
+    </div>
+  </div>
+`;
+document.body.appendChild(confirmModal);
+
+const confirmMessage = document.getElementById("confirmMessage");
+const confirmCancel = document.getElementById("confirmCancel");
+const confirmOk = document.getElementById("confirmOk");
+
+confirmCancel.onclick = () => {
+  confirmModal.classList.add("hidden");
+};
+
+let pendingPurchase = null; // Guarda la compra actual antes de confirmar
+
+// ===============================
+// FUNCIÓN PARA ABRIR MODAL DE CONFIRMACIÓN
+// ===============================
+function openConfirmModal(pubId, btnKeyIdentifier, btn) {
+  confirmMessage.textContent = "¿Deseas confirmar esta compra?";
+  confirmModal.classList.remove("hidden");
+  pendingPurchase = { pubId, btnKeyIdentifier, btn };
 }
 
-function updateKeysField(pubId, btnKeyIdentifier, originalBtn, newKeysArr) {
-  // Note: Function body is long, omitting for brevity in response but should be kept
-  // in your actual file to maintain functionality.
+// ===============================
+// ACCIÓN AL CONFIRMAR COMPRA
+// ===============================
+confirmOk.onclick = async () => {
+  if (!pendingPurchase) return;
+  const { pubId, btnKeyIdentifier, btn } = pendingPurchase;
+
+  confirmModal.classList.add("hidden");
+  btn.disabled = true;
+  btn.textContent = "Procesando...";
+
+  try {
+    // Simula obtener las keys de Firebase o localStorage
+    let pubs = JSON.parse(localStorage.getItem("publicaciones")) || [];
+    let pub = pubs.find(p => p.id === pubId);
+    if (!pub) throw new Error("Publicación no encontrada");
+
+    let keys = parseKeysField(pub.keys);
+    let availableKey = keys.find(k => !k.usada);
+
+    if (!availableKey) {
+      alert("No hay claves disponibles para esta publicación.");
+      btn.disabled = false;
+      btn.textContent = "Comprar";
+      return;
+    }
+
+    // Marcar key como usada
+    availableKey.usada = true;
+    pub.keys = keys;
+
+    // Guardar cambios
+    localStorage.setItem("publicaciones", JSON.stringify(pubs));
+
+    // Simula entrega de clave
+    setTimeout(() => {
+      alert(`✅ Compra completada.\nTu clave es:\n${availableKey.key}`);
+      btn.textContent = "Comprado ✅";
+      btn.classList.remove("bg-purple-600", "hover:bg-purple-700");
+      btn.classList.add("bg-green-600", "cursor-not-allowed");
+    }, 800);
+
+  } catch (error) {
+    console.error(error);
+    alert("Error al procesar la compra.");
+    btn.disabled = false;
+    btn.textContent = "Comprar";
+  }
+
+  pendingPurchase = null;
+};
+
+// ===============================
+// ASIGNAR EVENTOS DE COMPRA A BOTONES
+// ===============================
+function initBuyButtons() {
+  document.querySelectorAll(".btn-comprar").forEach(btn => {
+    btn.onclick = () => {
+      const pubId = btn.getAttribute("data-pubid");
+      const keyId = btn.getAttribute("data-keyid");
+      openConfirmModal(pubId, keyId, btn);
+    };
+  });
 }
+
+// Inicializa los botones al cargar
+document.addEventListener("DOMContentLoaded", initBuyButtons);
 
 // --- NEW: Level and Discount Logic (Exported for Rango.html) ---
 const LEVEL_VIP_SPEND = 50;
