@@ -23,7 +23,7 @@
       background: linear-gradient(90deg, #00c6ff, #0072ff);
     }
     .btn-buy {
-      background: linear-gradient(90deg, #ff4b2b, #00b894);
+      background: linear-gradient(90deg, #00ff88, #00b894);
       border: 1px solid rgba(255,255,255,0.2);
     }
     .btn-logout {
@@ -78,10 +78,157 @@
     }
     .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
     .price-badge { font-size: 1.5rem; font-weight:700; }
+
+    /* HAMBURGER + SIDEBAR STYLES (added) */
+    .hamburger {
+      position: fixed;
+      left: 18px;
+      top: 18px;
+      z-index: 100;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(6px);
+      cursor: pointer;
+      transition: transform .18s ease, background .18s ease;
+    }
+    .hamburger:active { transform: scale(.98); }
+
+    /* burger lines */
+    .burger {
+      width: 22px;
+      height: 14px;
+      position: relative;
+      transition: all .25s ease;
+    }
+    .burger span {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: white;
+      display: block;
+      border-radius: 2px;
+      transition: transform .25s ease, opacity .18s ease;
+    }
+    .burger span:nth-child(1) { top: 0; }
+    .burger span:nth-child(2) { top: 6px; }
+    .burger span:nth-child(3) { top: 12px; }
+
+    /* when open or scrolled - transform to X */
+    .hamburger.open .burger span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    .hamburger.open .burger span:nth-child(2) {
+      opacity: 0;
+    }
+    .hamburger.open .burger span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* side menu */
+    .menu-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 90;
+      display: none;
+      background: rgba(0,0,0,0.45);
+      transition: opacity .22s ease;
+    }
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -100%;
+      height: 100vh;
+      width: 60vw;
+      max-width: 520px;
+      z-index: 95;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: left .28s cubic-bezier(.2,.9,.2,1);
+      border-radius: 0 12px 12px 0;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .side-menu.open { left: 0; }
+
+    .menu-user {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .menu-user .avatar {
+      width: 56px; height: 56px; border-radius: 12px;
+      background: linear-gradient(90deg,#00c6ff,#0072ff);
+      display:flex; align-items:center; justify-content:center; font-weight:700; color:#071122;
+      box-shadow: 0 6px 20px rgba(0,198,255,0.08);
+    }
+    .menu-item {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px; border-radius:12px; cursor:pointer;
+      background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03);
+      transition: transform .12s ease, background .12s ease;
+    }
+    .menu-item:hover { transform: translateX(4px); background: rgba(255,255,255,0.03); }
+
+    /* responsive tweak */
+    @media (max-width: 520px) {
+      .side-menu { width: 80vw; max-width: none; }
+    }
   </style>
 </head>
 
 <body class="text-white p-4 md:p-8">
+  <!-- HAMBURGER BUTTON -->
+  <div id="hamburgerBtn" class="hamburger" aria-label="Menú">
+    <div class="burger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <!-- SIDE MENU + BACKDROP -->
+  <div id="menuBackdrop" class="menu-backdrop"></div>
+  <aside id="sideMenu" class="side-menu" aria-hidden="true">
+    <div class="menu-user">
+      <div class="avatar" id="menuAvatar">UX</div>
+      <div>
+        <div id="menuUserName" class="font-semibold text-lg">Usuario</div>
+        <div id="menuUserBalance" class="small-muted mt-1">Saldo: $0.00</div>
+      </div>
+    </div>
+
+    <div style="height:8px;"></div>
+
+    <div id="menuPublicaciones" class="menu-item"> 
+      <div>📦 Publicaciones</div>
+      <div class="small-muted">Ir</div>
+    </div>
+
+    <div id="menuKeys" class="menu-item">
+      <div>🔑 Mis Keys</div>
+      <div class="small-muted">Historial</div>
+    </div>
+
+    <div id="menuLogout" class="menu-item">
+      <div>🚪 Cerrar sesión</div>
+      <div class="small-muted">Salir</div>
+    </div>
+
+    <div style="flex:1"></div>
+
+    <div class="small-muted text-xs">SociosXIT • Menú</div>
+  </aside>
+
+  <!-- ORIGINAL HEADER (UNCHANGED) -->
   <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 rounded-lg card">
     <div>
       <h1 class="text-2xl font-bold">Bienvenido, <span id="userName" class="text-blue-300"></span></h1>
@@ -124,7 +271,7 @@
     <div id="myKeysList" class="grid grid-cols-1 gap-4"></div>
   </section>
 
-  <!-- Modales -->
+  <!-- Modales (unchanged) -->
   <div id="confirmModal" class="modal-backdrop">
     <div class="modal">
       <div id="confirmContent">
@@ -150,7 +297,7 @@
   </div>
 
   <script>
-    // --- Firebase Configuración ---
+    // --- Firebase Configuración (unchanged) ---
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
       authDomain: "sociosxit-5f841.firebaseapp.com",
@@ -164,7 +311,7 @@
     const db = firebase.database();
     const pubsRef = db.ref("publications");
 
-    // UI elements
+    // UI elements (existing)
     const userNameEl = document.getElementById("userName");
     const userBalanceEl = document.getElementById("userBalance");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -172,20 +319,32 @@
     const myKeysList = document.getElementById("myKeysList");
     const myKeysContainer = document.getElementById("myKeysContainer");
 
-    // modals
+    // menu elements (new)
+    const hamburgerBtn = document.getElementById("hamburgerBtn");
+    const sideMenu = document.getElementById("sideMenu");
+    const menuBackdrop = document.getElementById("menuBackdrop");
+    const menuUserName = document.getElementById("menuUserName");
+    const menuUserBalance = document.getElementById("menuUserBalance");
+    const menuAvatar = document.getElementById("menuAvatar");
+    const menuPublicaciones = document.getElementById("menuPublicaciones");
+    const menuKeys = document.getElementById("menuKeys");
+    const menuLogout = document.getElementById("menuLogout");
+
+    // existing modals
     const confirmModal = document.getElementById("confirmModal");
     const confirmText = document.getElementById("confirmText");
     const confirmOk = document.getElementById("confirmOk");
     const confirmCancel = document.getElementById("confirmCancel");
-
     const keyModal = document.getElementById("keyModal");
     const keyModalContent = document.getElementById("keyModalContent");
     const keyCopyBtn = document.getElementById("keyCopyBtn");
     const keyCloseBtn = document.getElementById("keyCloseBtn");
 
-    // Tabs
+    // Tabs (existing)
     const tabPublicaciones = document.getElementById("tabPublicaciones");
     const tabKeys = document.getElementById("tabKeys");
+
+    // --- Tabs functions (unchanged) ---
     tabPublicaciones.onclick = () => showTab("pubs");
     tabKeys.onclick = () => showTab("keys");
     function showTab(tab) {
@@ -202,13 +361,16 @@
       }
     }
 
-    // --- Sesión ---
+    // --- Session (unchanged) ---
     const currentUser = sessionStorage.getItem("sociosxit_user");
     if (!currentUser) window.location.href = "index.html";
     else {
       userNameEl.textContent = currentUser;
       loadUserBalance(currentUser);
       loadUserPurchases(currentUser);
+      // also set menu values
+      menuUserName.textContent = currentUser;
+      menuAvatar.textContent = String(currentUser).charAt(0)?.toUpperCase() || "U";
     }
 
     logoutBtn.onclick = () => {
@@ -216,7 +378,52 @@
       window.location.href = "index.html";
     };
 
-    // --- Publicaciones ---
+    // menu interactions
+    function openMenu() {
+      sideMenu.classList.add("open");
+      menuBackdrop.style.display = "block";
+      // small delay for backdrop opacity (simple fade)
+      setTimeout(()=> menuBackdrop.style.opacity = "1", 10);
+      hamburgerBtn.classList.add("open");
+      sideMenu.setAttribute("aria-hidden", "false");
+      // set menu balance (in case)
+      // menuUserBalance will be updated by loadUserBalance listener too
+    }
+    function closeMenu() {
+      sideMenu.classList.remove("open");
+      menuBackdrop.style.opacity = "0";
+      hamburgerBtn.classList.remove("open");
+      sideMenu.setAttribute("aria-hidden", "true");
+      setTimeout(()=> menuBackdrop.style.display = "none", 240);
+    }
+
+    hamburgerBtn.addEventListener("click", ()=> {
+      if (sideMenu.classList.contains("open")) closeMenu();
+      else openMenu();
+    });
+
+    // close when clicking backdrop
+    menuBackdrop.addEventListener("click", closeMenu);
+
+    // change hamburger into X on scroll (as requested) - style only
+    window.addEventListener("scroll", () => {
+      const px = window.scrollY || document.documentElement.scrollTop;
+      if (px > 20) hamburgerBtn.classList.add("open");
+      else {
+        // don't remove open if menu is open
+        if (!sideMenu.classList.contains("open")) hamburgerBtn.classList.remove("open");
+      }
+    });
+
+    // menu item behavior (navigate tabs + close)
+    menuPublicaciones.addEventListener("click", ()=> { showTab("pubs"); closeMenu(); });
+    menuKeys.addEventListener("click", ()=> { showTab("keys"); closeMenu(); });
+    menuLogout.addEventListener("click", ()=> {
+      sessionStorage.removeItem("sociosxit_user");
+      window.location.href = "index.html";
+    });
+
+    // --- Publicaciones (unchanged logic) ---
     pubsRef.on("value", (snapshot) => {
       publicationsContainer.innerHTML = "";
       const data = snapshot.val();
@@ -294,7 +501,7 @@
       if (el) el.classList.toggle("hidden");
     }
 
-    // --- Helpers for keys parsing + counting ---
+    // --- Helpers for keys parsing + counting (unchanged) ---
     function countKeys(keysField) {
       if (!keysField) return 0;
       if (Array.isArray(keysField)) return keysField.length;
@@ -361,7 +568,7 @@
       }
     }
 
-    // --- Confirm modal flow ---
+    // --- Confirm modal flow (unchanged) ---
     let _pendingPurchase = null; // { pubId, btnId, price, rawBtnId, originalBtnSnapshot }
 
     function openConfirmModal(pubId, safeBtnId, price, rawBtnId) {
@@ -381,7 +588,7 @@
       _pendingPurchase = null;
     };
 
-    // --- Main purchase function ---
+    // --- Main purchase function (unchanged) ---
     async function comprarKey(pubId, safeBtnId, price, rawBtnId) {
       try {
         const email = currentUser;
@@ -492,21 +699,24 @@
       }
     }
 
-    // --- sanitize email ---
+    // --- sanitize email (unchanged) ---
     function sanitizeEmail(email) {
       return email.replace(/\./g, "_");
     }
 
-    // --- load user balance (real-time) ---
+    // --- load user balance (real-time) (unchanged, but also updates menu) ---
     function loadUserBalance(email) {
       const userKey = sanitizeEmail(email);
       db.ref(`users/${userKey}/balance`).on("value", snap => {
         const balance = parseFloat(snap.val() || 0) || 0;
-        userBalanceEl.textContent = `$${Number(balance).toFixed(2)}`;
+        const formatted = `$${Number(balance).toFixed(2)}`;
+        userBalanceEl.textContent = formatted;
+        // also update menu display
+        menuUserBalance.textContent = `Saldo: ${formatted}`;
       });
     }
 
-    // --- Historial (Mis Keys) with search & filter ---
+    // --- Historial (Mis Keys) with search & filter (unchanged) ---
     function loadUserPurchases(email) {
       const userKey = sanitizeEmail(email);
       const purchasesRef = db.ref(`users/${userKey}/purchases`);
