@@ -19,8 +19,9 @@
       align-items: center;
       justify-content: center;
       font-family: 'Poppins', sans-serif;
-      /* overflow: hidden; <--- Eliminado para prevenir problemas de clipping */
+      overflow-x: hidden; /* <--- Previene el scroll horizontal no deseado */
       margin: 0;
+      padding: 20px 0; /* <--- Asegura un mínimo de padding vertical en pantallas pequeñas */
     }
 
     @keyframes bgMove {
@@ -38,27 +39,19 @@
       border: 1px solid rgba(255,255,255,0.25);
       border-radius: 20px;
       padding: 2.5rem;
-      /* Ajuste clave: Usamos 'width: auto' y forzamos el 'max-width' a ser más sensible */
-      width: auto;
+      
+      /* AJUSTE CLAVE: Priorizamos el 90% del ancho disponible */
+      width: 90vw; /* Usa el 90% del ancho del viewport */
       max-width: 380px; 
       min-width: 320px; 
-      /* Nuevo margen externo para asegurar espacio lateral en el móvil */
-      margin-left: 20px;
-      margin-right: 20px;
+      
+      /* El margen auto se encargará de centrarlo si el 90vw no cubre toda la pantalla */
+      margin: 20px auto;
+      
       box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 0 35px rgba(255,0,150,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: fadeIn 0.6s ease;
       box-sizing: border-box;
-    }
-    
-    /* Media Query: para pantallas muy pequeñas (como en la captura) */
-    @media (max-width: 420px) {
-        .card {
-            /* Forzar el ancho máximo a ser el ancho de la pantalla menos 40px (20px de margen a cada lado) */
-            max-width: calc(100% - 40px);
-            /* Asegurar que el padding interno no se reduzca */
-            padding: 2rem 1.5rem; 
-        }
     }
 
     .card:hover {
