@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Rango - SociosXIT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <style>
+        /* === ESTILOS DEL DASHBOARD COPIADOS (para que se vea igual) === */
+        :root{
+            --neon-cyan: #00f0ff;
+            --neon-pink: #ff4df0;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffd460;
+            --glass-bg: rgba(255,255,255,0.04);
+            /* COLORES PARA LA BARRA DE PROGRESO */
+            --level-base: rgba(255,255,255,0.1);
+            --level-vip: #00f0ff; /* VIP: Cian */
+            --level-premium: #ff4df0; /* Premium: Rosa */
+        }
+        html,body{height:100%;}
+        body {
+            background: linear-gradient(135deg, #0f0812 10%, #141225 50%, #1b1730 100%);
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px; 
+            box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+        }
+
+        /* BARRA DE PROGRESO */
+        .progress-bar {
+            height: 12px; /* Un poco más grande para la pantalla de rango */
+            border-radius: 999px;
+            background-color: var(--level-base);
+            overflow: hidden;
+            margin-top: 6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.4) inset;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 0.4s ease-out, background 0.4s ease;
+            background-color: var(--level-base);
+        }
+        .level-label {
+            font-weight: 700;
+            font-size: 1.1rem; /* Más grande */
+            text-shadow: 0 0 8px rgba(0,0,0,0.4);
+        }
+        .level-vip-text { color: var(--level-vip); text-shadow: 0 0 16px rgba(0,240,255,0.4); }
+        .level-premium-text { color: var(--level-premium); text-shadow: 0 0 16px rgba(255,77,240,0.4); }
+        .small-muted { color: rgba(255,255,255,0.75); font-size:0.9rem; }
+        .text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,240,255,0.18); }
+        
+        /* Botón de volver */
+        .btn-back {
+          padding: 8px 16px;
+          border-radius: 999px;
+          background: rgba(255,255,255,0.08);
+          border: 1px solid rgba(255,255,255,0.1);
+          color: white;
+          font-weight: 600;
+          transition: background 0.2s;
+        }
+        .btn-back:hover {
+          background: rgba(255,255,255,0.15);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <div class="w-full max-w-2xl mt-8">
+        <a href="dashboard.html" class="btn-back flex items-center mb-6 w-max">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span class="ml-2">Volver al Dashboard</span>
+        </a>
+
+        <div class="card p-6 md:p-8">
+            <h1 class="text-3xl font-bold mb-4 text-neon-cyan flex items-center">
+              <span id="rankTitle">Mi Rango de Socio</span> 🏆
+            </h1>
+
+            <div class="text-lg font-semibold mb-6">
+                Usuario: <span id="rankUserName">Cargando...</span>
+            </div>
+
+            <div id="mainRankBar" class="p-4 rounded-lg border-white/5 bg-black/20">
+                <div class="flex justify-between items-center mb-2">
+                    <div id="userLevelTextRank" class="level-label text-xl">Nivel: Base</div>
+                    <div id="levelProgressTextRank" class="small-muted text-base">$0.00 / $50.00</div>
+                </div>
+                <div class="progress-bar">
+                    <div id="levelProgressBarRank" class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <div id="levelNextGoalRank" class="small-muted text-base mt-2">
+                    Próx. nivel (VIP): $50.00 (10% Desc.)
+                </div>
+            </div>
+
+            <h2 class="text-xl font-bold mt-8 mb-3">Beneficios por Nivel</h2>
+            <ul class="space-y-2 list-disc list-inside small-muted">
+                <li>**Nivel Base:** Sin descuento.</li>
+                <li class="level-vip-text">**Nivel VIP ($50+):** 10% de Descuento en todas las compras.</li>
+                <li class="level-premium-text">**Nivel Premium ($150+):** 20% de Descuento en todas las compras.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // --- Firebase Configuración (igual que en dashboard.html) ---
+        const firebaseConfig = {
+          apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
+          authDomain: "sociosxit-5f841.firebaseapp.com",
+          databaseURL: "https://sociosxit-5f841-default-rtdb.firebaseio.com",
+          projectId: "sociosxit-5f841",
+          storageBucket: "sociosxit-5f841.firebasestorage.app",
+          messagingSenderId: "364183519851",
+          appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // --- Constantes de Nivel (igual que en dashboard.html) ---
+        const LEVEL_VIP_SPEND = 50;
+        const LEVEL_PREMIUM_SPEND = 150;
+        
+        // --- Elementos de la UI del Rango ---
+        const rankUserNameEl = document.getElementById("rankUserName");
+        const userLevelTextRank = document.getElementById("userLevelTextRank");
+        const levelProgressTextRank = document.getElementById("levelProgressTextRank");
+        const levelProgressBarRank = document.getElementById("levelProgressBarRank");
+        const levelNextGoalRank = document.getElementById("levelNextGoalRank");
+
+        // --- Lógica de Sesión y Carga ---
+        const currentUser = sessionStorage.getItem("current_rank_user");
+
+        if (!currentUser) {
+            alert("No se encontró usuario de rango. Volviendo al inicio.");
+            window.location.href = "index.html"; // O a dashboard.html
+        } else {
+            rankUserNameEl.textContent = currentUser;
+            loadUserSpendingAndLevel(currentUser);
+        }
+        
+        // --- Funciones de Rango (copiadas de dashboard.html) ---
+        
+        function sanitizeEmail(email) {
+            return email.replace(/\./g, "_");
+        }
+
+        /**
+         * Calculates the user's current level and discount based on total spending.
+         */
+        function calculateLevel(spending) {
+            if (spending >= LEVEL_PREMIUM_SPEND) {
+                return {
+                    level: "Premium",
+                    discount: 0.20,
+                    nextGoal: LEVEL_PREMIUM_SPEND,
+                    goalLabel: "¡Nivel Máximo! (20% Desc. aplicado)",
+                    progressColor: "var(--level-premium)"
+                };
+            } else if (spending >= LEVEL_VIP_SPEND) {
+                return {
+                    level: "VIP",
+                    discount: 0.10,
+                    nextGoal: LEVEL_PREMIUM_SPEND,
+                    goalLabel: `Próx. nivel (Premium): $${LEVEL_PREMIUM_SPEND.toFixed(2)} (20% Desc.)`,
+                    progressColor: "var(--level-vip)"
+                };
+            } else {
+                return {
+                    level: "Base",
+                    discount: 0.00,
+                    nextGoal: LEVEL_VIP_SPEND,
+                    goalLabel: `Próx. nivel (VIP): $${LEVEL_VIP_SPEND.toFixed(2)} (10% Desc.)`,
+                    progressColor: "var(--level-base)"
+                };
+            }
+        }
+
+        /**
+         * Updates the level bar UI for the Rank page.
+         */
+        function updateLevelUI(spending) {
+            const { level, nextGoal, goalLabel, progressColor } = calculateLevel(spending);
+
+            userLevelTextRank.textContent = `Nivel: ${level}`;
+            // Quitamos clases de nivel anteriores y añadimos la correcta
+            userLevelTextRank.classList.remove('level-vip-text', 'level-premium-text');
+            userLevelTextRank.classList.add(level === 'VIP' ? 'level-vip-text' : level === 'Premium' ? 'level-premium-text' : '');
+
+            levelNextGoalRank.textContent = goalLabel;
+
+            let percentage = 0;
+            let goalAmount = 0;
+
+            if (spending < LEVEL_VIP_SPEND) {
+                goalAmount = LEVEL_VIP_SPEND;
+                percentage = (spending / goalAmount) * 100;
+                levelProgressTextRank.textContent = `$${spending.toFixed(2)} / $${goalAmount.toFixed(2)}`;
+            } else if (spending < LEVEL_PREMIUM_SPEND) {
+                goalAmount = LEVEL_PREMIUM_SPEND;
+                // Progreso desde $50 a $150
+                const progressRange = LEVEL_PREMIUM_SPEND - LEVEL_VIP_SPEND; // 100
+                const spentInRange = spending - LEVEL_VIP_SPEND; // 50 to 150
+                percentage = 100 * (spentInRange / progressRange);
+                
+                // Aseguramos que el texto muestre el progreso contra el tope máximo
+                levelProgressTextRank.textContent = `$${spending.toFixed(2)} / $${LEVEL_PREMIUM_SPEND.toFixed(2)}`;
+            } else {
+                percentage = 100;
+                levelProgressTextRank.textContent = `¡Nivel Máximo! ($${spending.toFixed(2)})`;
+            }
+            
+            levelProgressBarRank.style.width = `${Math.min(percentage, 100).toFixed(2)}%`;
+            levelProgressBarRank.style.backgroundColor = progressColor;
+        }
+
+        /**
+         * Loads the user's total accumulated spending in real-time.
+         */
+        function loadUserSpendingAndLevel(email) {
+            const userKey = sanitizeEmail(email);
+            const purchasesRef = db.ref(`users/${userKey}/purchases`);
+
+            purchasesRef.on("value", snap => {
+                const purchases = snap.val();
+                let totalSpent = 0;
+                if (purchases) {
+                    Object.values(purchases).forEach(p => {
+                        // El campo 'price' guarda el precio REAL PAGADO (con descuento)
+                        totalSpent += parseFloat(p.price || 0); 
+                    });
+                }
+                updateLevelUI(totalSpent);
+            });
+        }
+    </script>
+</body>
+</html>
