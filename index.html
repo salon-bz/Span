@@ -19,7 +19,7 @@
       align-items: center;
       justify-content: center;
       font-family: 'Poppins', sans-serif;
-      overflow: hidden;
+      /* overflow: hidden; <--- Eliminado para prevenir problemas de clipping */
       margin: 0;
     }
 
@@ -37,17 +37,28 @@
       backdrop-filter: blur(15px);
       border: 1px solid rgba(255,255,255,0.25);
       border-radius: 20px;
-      /* Ajuste: Usaremos un width basado en 'min-width' y 'max-width' */
-      width: 90%; /* Hace que sea sensible al ancho de la pantalla */
-      max-width: 380px;
-      min-width: 320px; /* <--- Mantenemos esto y le damos prioridad */
       padding: 2.5rem;
+      /* Ajuste clave: Usamos 'width: auto' y forzamos el 'max-width' a ser más sensible */
+      width: auto;
+      max-width: 380px; 
+      min-width: 320px; 
+      /* Nuevo margen externo para asegurar espacio lateral en el móvil */
+      margin-left: 20px;
+      margin-right: 20px;
       box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 0 35px rgba(255,0,150,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: fadeIn 0.6s ease;
       box-sizing: border-box;
-      /* Aseguramos que la tarjeta no se pegue demasiado a los bordes en pantallas muy pequeñas */
-      margin: 20px; /* <--- Añadimos un margen externo para respirar */
+    }
+    
+    /* Media Query: para pantallas muy pequeñas (como en la captura) */
+    @media (max-width: 420px) {
+        .card {
+            /* Forzar el ancho máximo a ser el ancho de la pantalla menos 40px (20px de margen a cada lado) */
+            max-width: calc(100% - 40px);
+            /* Asegurar que el padding interno no se reduzca */
+            padding: 2rem 1.5rem; 
+        }
     }
 
     .card:hover {
