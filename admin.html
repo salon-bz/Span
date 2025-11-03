@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Administración - SociosXIT</title>
 
-  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
@@ -58,6 +57,11 @@
       background: linear-gradient(90deg, #ef4444, #f43f5e);
     }
 
+    /* Clase agregada para el botón de reseteo */
+    .btn-orange {
+      background: linear-gradient(90deg, #f97316, #ea580c); /* Naranja */
+    }
+
     input[type="number"] {
       background: rgba(255,255,255,0.15);
       border: none;
@@ -96,18 +100,21 @@
 
 <body class="p-6 md:p-10">
 
-  <!-- Header -->
   <header class="flex flex-col md:flex-row justify-between items-center mb-10">
     <div>
       <h1 class="text-4xl font-bold mb-2 header-glow">Panel de Administración</h1>
       <p class="text-gray-300">Gestiona usuarios, saldos y accesos de SociosXIT</p>
     </div>
-    <button id="deleteSelectedBtn" class="btn btn-red mt-5 md:mt-0">
-      🗑️ Eliminar seleccionados
-    </button>
+    <div class="flex flex-col md:flex-row gap-4 mt-5 md:mt-0">
+      <button id="resetAllExpensesBtn" class="btn btn-orange">
+        🔄 Reset Global de Gastos
+      </button>
+      <button id="deleteSelectedBtn" class="btn btn-red">
+        🗑️ Eliminar seleccionados
+      </button>
+    </div>
   </header>
 
-  <!-- Lista de usuarios -->
   <main id="userList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></main>
 
   <script>
@@ -125,6 +132,7 @@
     const db = firebase.database();
     const userList = document.getElementById("userList");
     const deleteSelectedBtn = document.getElementById("deleteSelectedBtn");
+    const resetAllExpensesBtn = document.getElementById("resetAllExpensesBtn"); // Nuevo
 
     // --- Cargar usuarios ---
     db.ref("users").on("value", snapshot => {
@@ -135,6 +143,7 @@
         const user = users[key];
         const userEmail = key.replace(/_/g, ".");
         const balance = user.balance || 0;
+        const expenseBar = user.expenseBar || 0; // Se asume esta clave para la "barra de gastos"
 
         const div = document.createElement("div");
         div.className = "glass p-6 flex flex-col justify-between";
@@ -156,7 +165,17 @@
               <button onclick="updateBalance('${key}', true)" class="btn btn-green text-sm">+ Agregar</button>
               <button onclick="updateBalance('${key}', false)" class="btn btn-red text-sm">− Quitar</button>
             </div>
-          </div>
+            
+            <div class="border-t border-gray-700 pt-4 mt-2">
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-300 text-sm">📊 **Barra de Gastos**</span>
+                <span id="expenseBar-${key}" class="text-yellow-400 font-semibold text-lg">$${expenseBar.toFixed(2)}</span>
+              </div>
+              <button onclick="resetExpenseBar('${key}')" class="btn btn-blue text-sm w-full">
+                ↩️ Resetear Gastos Individual
+              </button>
+            </div>
+            </div>
 
           <div class="flex justify-between items-center border-t border-gray-700 pt-4 mt-2">
             <label class="flex items-center gap-2 text-sm text-gray-300">
@@ -185,6 +204,45 @@
       });
       amountEl.value = "";
     }
+
+    // --- NUEVA FUNCIÓN: Restablecer Barra de Gastos Individual ---
+    function resetExpenseBar(userKey) {
+      if (!confirm("¿Seguro que deseas resetear la Barra de Gastos para este usuario?")) return;
+      
+      const expenseRef = db.ref(`users/${userKey}/expenseBar`);
+      expenseRef.set(0) // Establecer la barra de gastos a 0
+        .then(() => {
+          alert(`Barra de Gastos para ${userKey.replace(/_/g, ".")} reseteada a $0.00 ✅`);
+        })
+        .catch(error => {
+          console.error("Error al resetear gastos individuales:", error);
+          alert("Error al intentar resetear los gastos.");
+        });
+    }
+
+    // --- NUEVA FUNCIÓN: Restablecer Barra de Gastos Global ---
+    resetAllExpensesBtn.onclick = async () => {
+      if (!confirm("⚠️ ADVERTENCIA: ¿Seguro que deseas resetear la Barra de Gastos a $0.00 para *TODOS* los usuarios? Esta acción es irreversible.")) return;
+
+      try {
+        const usersSnapshot = await db.ref("users").once("value");
+        const updates = {};
+        
+        usersSnapshot.forEach(childSnapshot => {
+          const userKey = childSnapshot.key;
+          updates[`users/${userKey}/expenseBar`] = 0; // Prepara la actualización a 0 para cada usuario
+        });
+
+        // Aplica todas las actualizaciones de forma atómica
+        await db.ref().update(updates); 
+        alert("Barra de Gastos Global reseteada a $0.00 para todos los usuarios ✅");
+
+      } catch (error) {
+        console.error("Error al resetear gastos globales:", error);
+        alert("Ocurrió un error al intentar resetear los gastos globales.");
+      }
+    };
+
 
     // --- Eliminar usuarios seleccionados ---
     deleteSelectedBtn.onclick = async () => {
