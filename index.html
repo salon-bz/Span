@@ -3,68 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login | SociosXit</title>
-  <script type="module">
-    // --- Firebase Configuración ---
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
-      authDomain: "sociosxit-5f841.firebaseapp.com",
-      databaseURL: "https://sociosxit-5f841-default-rtdb.firebaseio.com",
-      projectId: "sociosxit-5f841",
-      storageBucket: "sociosxit-5f841.firebasestorage.app",
-      messagingSenderId: "364183519851",
-      appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    // --- Función Login ---
-    async function loginUser(e) {
-      e.preventDefault();
-      const email = document.getElementById("loginEmail").value;
-      const password = document.getElementById("loginPassword").value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        alert("Inicio de sesión exitoso ✅");
-        window.location.href = "dashboard.html";
-      } catch (error) {
-        alert("Error al iniciar sesión: " + error.message);
-      }
-    }
-
-    // --- Función Registro ---
-    async function registerUser(e) {
-      e.preventDefault();
-      const email = document.getElementById("registerEmail").value;
-      const password = document.getElementById("registerPassword").value;
-      try {
-        await createUserWithEmailAndPassword(auth, email, password);
-        alert("Usuario registrado correctamente ✅");
-        document.getElementById("registerForm").reset();
-        switchToLogin();
-      } catch (error) {
-        alert("Error al registrar: " + error.message);
-      }
-    }
-
-    // --- Cambio entre login y registro ---
-    window.switchToRegister = function() {
-      document.querySelector(".container").classList.add("active");
-    };
-    window.switchToLogin = function() {
-      document.querySelector(".container").classList.remove("active");
-    };
-
-    // --- Eventos ---
-    window.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("loginForm").addEventListener("submit", loginUser);
-      document.getElementById("registerForm").addEventListener("submit", registerUser);
-    });
-  </script>
+  <title>SociosXIT - Acceso</title>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
   <style>
     * {
@@ -77,60 +18,78 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      background: linear-gradient(135deg, #ff0080, #7928ca, #2af599);
+      background-size: 400% 400%;
+      animation: bgMove 10s ease infinite;
       margin: 0;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .container {
       width: 90%;
       max-width: 400px;
-      background: #fff;
+      background: rgba(255,255,255,0.15);
       border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      backdrop-filter: blur(15px);
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 10px 30px rgba(255,255,255,0.3);
       transition: all 0.5s ease;
-    }
-
-    .form-container {
       padding: 2rem;
-      display: flex;
-      flex-direction: column;
       text-align: center;
+      color: white;
     }
 
     h2 {
-      color: #333;
+      color: white;
       margin-bottom: 1rem;
+      font-size: 1.8rem;
+      text-shadow: 0 0 10px #ff80ff, 0 0 20px #60a5fa;
     }
 
     input {
       padding: 12px;
       margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 10px;
       width: 100%;
+      background: rgba(255,255,255,0.15);
+      color: white;
+      text-align: center;
       outline: none;
       transition: 0.3s;
     }
 
+    input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+
     input:focus {
-      border-color: #4f46e5;
-      box-shadow: 0 0 5px rgba(79,70,229,0.5);
+      border-color: #ff80ff;
+      box-shadow: 0 0 12px #ff80ff;
     }
 
     button {
-      background: #4f46e5;
-      color: #fff;
+      background: linear-gradient(90deg, #00c6ff, #0072ff);
+      color: white;
       border: none;
       padding: 12px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       margin-top: 10px;
       transition: 0.3s;
+      width: 100%;
+      font-weight: 600;
     }
 
     button:hover {
-      background: #4338ca;
+      transform: scale(1.03);
+      box-shadow: 0 0 20px currentColor;
     }
 
     p {
@@ -139,24 +98,13 @@
     }
 
     a {
-      color: #06b6d4;
+      color: #ffe0ff;
       text-decoration: none;
       font-weight: 600;
       cursor: pointer;
     }
 
-    /* Transición entre login y registro */
-    .register-section {
-      display: none;
-    }
-
-    .container.active .login-section {
-      display: none;
-    }
-
-    .container.active .register-section {
-      display: block;
-    }
+    .hidden { display: none; }
 
     @media (max-width: 480px) {
       .container {
@@ -169,26 +117,97 @@
 <body>
   <div class="container">
     <!-- LOGIN -->
-    <div class="form-container login-section">
+    <div id="loginView">
       <h2>Iniciar Sesión</h2>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
-        <input type="password" id="loginPassword" placeholder="Contraseña" required />
-        <button type="submit">Entrar</button>
-      </form>
-      <p>¿No tienes cuenta? <a onclick="switchToRegister()">Regístrate</a></p>
+      <input type="text" id="loginUser" placeholder="Usuario" />
+      <input type="password" id="loginPass" placeholder="Contraseña" />
+      <button id="loginBtn">Entrar</button>
+      <p>¿No tienes cuenta? <a id="goRegister">Regístrate</a></p>
     </div>
 
     <!-- REGISTRO -->
-    <div class="form-container register-section">
+    <div id="registerView" class="hidden">
       <h2>Crear Cuenta</h2>
-      <form id="registerForm">
-        <input type="email" id="registerEmail" placeholder="Correo electrónico" required />
-        <input type="password" id="registerPassword" placeholder="Contraseña" required />
-        <button type="submit">Registrarse</button>
-      </form>
-      <p>¿Ya tienes cuenta? <a onclick="switchToLogin()">Inicia sesión</a></p>
+      <input type="text" id="regUser" placeholder="Usuario" />
+      <input type="password" id="regPass" placeholder="Contraseña" />
+      <button id="regBtn">Registrarse</button>
+      <p>¿Ya tienes cuenta? <a id="goLogin">Inicia sesión</a></p>
+    </div>
+
+    <!-- VERIFICACIÓN -->
+    <div id="verifyView" class="hidden">
+      <h2>Verificar Cuenta</h2>
+      <p>Pide tu código al bot de Telegram:</p>
+      <input type="text" id="verifyCode" placeholder="Código de 6 dígitos" />
+      <button id="goBotBtn" style="background:linear-gradient(90deg,#ffb100,#ff5e00)">Pedir código</button>
+      <button id="verifyBtn" style="background:linear-gradient(90deg,#00ff88,#00b894)">Verificar</button>
     </div>
   </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
+      authDomain: "sociosxit-5f841.firebaseapp.com",
+      databaseURL: "https://sociosxit-5f841-default-rtdb.firebaseio.com",
+      projectId: "sociosxit-5f841",
+      storageBucket: "sociosxit-5f841.firebasestorage.app",
+      messagingSenderId: "364183519851",
+      appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const usersRef = db.ref("users");
+
+    const views = ["loginView", "registerView", "verifyView"];
+    const show = (id) => views.forEach(v => document.getElementById(v).classList.toggle("hidden", v !== id));
+
+    document.getElementById("goRegister").onclick = () => show("registerView");
+    document.getElementById("goLogin").onclick = () => show("loginView");
+
+    // --- REGISTRO ---
+    document.getElementById("regBtn").onclick = async () => {
+      const user = regUser.value.trim();
+      const pass = regPass.value.trim();
+      if (!user || !pass) return alert("Completa todos los campos");
+      const snap = await usersRef.child(user).once("value");
+      if (snap.exists()) return alert("El usuario ya existe");
+      await usersRef.child(user).set({ password: pass, verified: false });
+      alert("Cuenta creada correctamente. Ahora verifica tu código.");
+      show("verifyView");
+    };
+
+    // --- PEDIR CÓDIGO ---
+    document.getElementById("goBotBtn").onclick = () => {
+      window.open("http://t.me/Socios66_bot", "_blank");
+      goBotBtn.disabled = true;
+      goBotBtn.innerText = "Bot abierto ✅";
+    };
+
+    // --- VERIFICAR CÓDIGO ---
+    document.getElementById("verifyBtn").onclick = async () => {
+      const code = verifyCode.value.trim();
+      const user = regUser.value.trim() || loginUser.value.trim();
+      if (!code || !user) return alert("Faltan datos");
+      const codeRef = db.ref("codes/available/" + code);
+      const snap = await codeRef.once("value");
+      if (!snap.exists()) return alert("Código inválido o usado");
+      await codeRef.remove();
+      await usersRef.child(user).update({ verified: true });
+      sessionStorage.setItem("sociosxit_user", user);
+      window.location.href = "dashboard.html";
+    };
+
+    // --- LOGIN ---
+    document.getElementById("loginBtn").onclick = async () => {
+      const user = loginUser.value.trim();
+      const pass = loginPass.value.trim();
+      if (!user || !pass) return alert("Completa todos los campos");
+      const snap = await usersRef.child(user).once("value");
+      if (!snap.exists() || snap.val().password !== pass) return alert("Datos incorrectos");
+      if (!snap.val().verified) return show("verifyView");
+      sessionStorage.setItem("sociosxit_user", user);
+      window.location.href = "dashboard.html";
+    };
+  </script>
 </body>
 </html>
