@@ -48,15 +48,6 @@
       box-shadow: 0 8px 30px rgba(0,198,255,0.12);
       transform: translateY(-2px);
     }
-
-    /* recuadro key */
-    .key-box {
-      background: rgba(0,0,0,0.45);
-      border: 1px solid rgba(0,255,136,0.12);
-      padding: 12px;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
     .small-muted { color: rgba(255,255,255,0.7); font-size:0.9rem; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
   </style>
@@ -196,13 +187,14 @@
       if (pub.buttons) {
         Object.keys(pub.buttons).forEach(btnKey => {
           const btn = pub.buttons[btnKey];
+          const price = parseFloat(btn.price || 0).toFixed(2);
           const availableKeys = (btn.keys && typeof btn.keys === "string")
             ? btn.keys.split(",").filter(k => k.trim() !== "").length
             : Array.isArray(btn.keys) ? btn.keys.length : 0;
 
           buttonsHTML += `
             <div class="btn-buy p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
-              <div class="text-2xl font-bold">$${btn.price}</div>
+              <div class="text-2xl font-bold">$${price}</div>
               <div class="text-sm font-semibold">${btn.duration}</div>
               <div class="text-xs text-gray-200 mt-1">🔑 ${availableKeys} claves disponibles</div>
             </div>`;
@@ -229,8 +221,8 @@
     function loadUserBalance(email) {
       const userKey = sanitizeEmail(email);
       db.ref(`users/${userKey}/balance`).on("value", snap => {
-        const balance = snap.val() || 0;
-        userBalanceEl.textContent = `$${Number(balance).toFixed(2)}`;
+        const balance = parseFloat(snap.val() || 0).toFixed(2);
+        userBalanceEl.textContent = `$${balance}`;
       });
     }
 
@@ -283,6 +275,7 @@
           const div = document.createElement("div");
           div.className = "card rounded-lg p-4 transition-transform hover:scale-[1.01]";
           const date = new Date(it.date).toLocaleString();
+          const price = parseFloat(it.price || 0).toFixed(2);
 
           div.innerHTML = `
             <div class="flex flex-col md:flex-row justify-between items-start gap-2">
@@ -292,7 +285,7 @@
                 <div class="small-muted mt-2">📅 ${date}</div>
               </div>
               <div class="text-left md:text-right">
-                <div class="font-bold text-green-400">$${Number(it.price || 0).toFixed(2)}</div>
+                <div class="font-bold text-green-400">$${price}</div>
                 <div class="mono text-sm text-green-300 mt-2 break-all">${it.key}</div>
                 <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-3 rounded" onclick="copiarKey('${it.key}')">Copiar</button>
               </div>
