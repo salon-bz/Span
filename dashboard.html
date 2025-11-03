@@ -29,26 +29,71 @@
     .btn-logout {
       background: linear-gradient(90deg, #ff416c, #ff4b2b);
     }
+
+    /* pestañas */
+    .tabs { display:flex; gap:8px; margin-bottom:12px; }
+    .tab-btn {
+      background: rgba(255,255,255,0.03);
+      color: rgba(255,255,255,0.9);
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.06);
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .tab-btn.active {
+      background: linear-gradient(90deg,#00c6ff,#0072ff);
+      color: #0b1020;
+      box-shadow: 0 8px 30px rgba(0,198,255,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* recuadro key (usa tus estilos) */
+    .key-box {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(0,255,136,0.12);
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
+    .small-muted { color: rgba(255,255,255,0.7); font-size:0.9rem; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
   </style>
 </head>
 
 <body class="text-white p-4 md:p-8">
-  <header class="flex justify-between items-center mb-6 p-4 rounded-lg card">
+  <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 rounded-lg card">
     <div>
       <h1 class="text-2xl font-bold">Bienvenido, <span id="userName" class="text-blue-300"></span></h1>
       <p class="text-sm text-gray-300">Publicaciones disponibles para ti</p>
-      <p class="text-lg mt-2">💰 Saldo: <span id="userBalance" class="font-bold text-green-400">$0.00</span> USD</p> <!-- NUEVO -->
+      <p class="text-lg mt-2">💰 Saldo: <span id="userBalance" class="font-bold text-green-400">$0.00</span> USD</p>
     </div>
-    <button id="logoutBtn" class="btn-logout font-semibold py-2 px-4 rounded-lg transition-transform hover:scale-105">
-      Cerrar Sesión
-    </button>
+    <div class="mt-4 md:mt-0 flex items-center gap-3">
+      <button id="logoutBtn" class="btn-logout font-semibold py-2 px-4 rounded-lg transition-transform hover:scale-105">
+        Cerrar Sesión
+      </button>
+    </div>
   </header>
 
+  <!-- pestañas -->
+  <div class="tabs">
+    <button id="tabPublicaciones" class="tab-btn active">📦 Publicaciones</button>
+    <button id="tabKeys" class="tab-btn">🔑 Mis Keys</button>
+  </div>
+
+  <!-- Contenedor Publicaciones (por defecto visible) -->
   <main id="publicationsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
   </main>
 
+  <!-- Contenedor Mis Keys (oculto por defecto) -->
+  <section id="myKeysContainer" class="hidden">
+    <h2 class="text-xl font-semibold mb-4">🔒 Historial de Keys compradas</h2>
+    <div id="myKeysList" class="grid grid-cols-1 gap-4"></div>
+  </section>
+
   <script>
-    // Config Firebase (MISMA CONFIGURACIÓN)
+    // --- Firebase Configuración ---
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
       authDomain: "sociosxit-5f841.firebaseapp.com",
@@ -63,26 +108,48 @@
     const pubsRef = db.ref("publications");
 
     const userNameEl = document.getElementById("userName");
-    const userBalanceEl = document.getElementById("userBalance"); // NUEVO
+    const userBalanceEl = document.getElementById("userBalance");
     const logoutBtn = document.getElementById("logoutBtn");
     const publicationsContainer = document.getElementById("publicationsContainer");
+    const myKeysContainer = document.getElementById("myKeysContainer");
+    const myKeysList = document.getElementById("myKeysList");
 
-    // 1. Verificar Sesión
+    // Tabs
+    const tabPublicaciones = document.getElementById("tabPublicaciones");
+    const tabKeys = document.getElementById("tabKeys");
+    tabPublicaciones.onclick = () => { showTab("pubs"); };
+    tabKeys.onclick = () => { showTab("keys"); };
+    function showTab(t) {
+      if (t === "pubs") {
+        publicationsContainer.classList.remove("hidden");
+        myKeysContainer.classList.add("hidden");
+        tabPublicaciones.classList.add("active");
+        tabKeys.classList.remove("active");
+      } else {
+        publicationsContainer.classList.add("hidden");
+        myKeysContainer.classList.remove("hidden");
+        tabPublicaciones.classList.remove("active");
+        tabKeys.classList.add("active");
+      }
+    }
+
+    // --- Verificar sesión ---
     const currentUser = sessionStorage.getItem("sociosxit_user");
     if (!currentUser) {
       window.location.href = "index.html";
     } else {
       userNameEl.textContent = currentUser;
-      loadUserBalance(currentUser); // NUEVO
+      loadUserBalance(currentUser);
+      loadUserPurchases(currentUser);
     }
 
-    // 2. Cerrar Sesión
+    // --- Cerrar sesión ---
     logoutBtn.onclick = () => {
       sessionStorage.removeItem("sociosxit_user");
       window.location.href = "index.html";
     };
 
-    // 3. Escuchar publicaciones
+    // --- Escuchar publicaciones ---
     pubsRef.on("value", (snapshot) => {
       publicationsContainer.innerHTML = "";
       const data = snapshot.val();
@@ -97,7 +164,7 @@
       });
     });
 
-    // 4. Crear HTML de publicaciones
+    // --- Crear elemento de publicación (RESPETA tu diseño) ---
     function createPublicationElement(pub, key) {
       const div = document.createElement("div");
       div.className = "card rounded-xl overflow-hidden shadow-lg p-5";
@@ -115,52 +182,332 @@
         }
       }
 
+      // Botones (soportamos pub.buttons como objeto o array)
       let buttonsHTML = "";
       if (pub.buttons) {
-        Object.keys(pub.buttons).forEach(btnKey => {
-          const btn = pub.buttons[btnKey];
-          buttonsHTML += `
-            <div class="btn-buy p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
-              <div class="text-2xl font-bold">$${btn.price}</div>
-              <div class="text-sm font-semibold">${btn.duration}</div>
-              <div class="text-xs text-gray-200 mt-1">${btn.quantity} disponibles</div>
-              <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-4 rounded-full text-sm">Comprar</button>
-            </div>
-          `;
-        });
+        // si es array
+        if (Array.isArray(pub.buttons)) {
+          pub.buttons.forEach((btn, index) => {
+            buttonsHTML += renderButtonHTML(key, index, btn);
+          });
+        } else {
+          // si es objeto con keys dinámicas
+          Object.keys(pub.buttons).forEach(btnKey => {
+            const btn = pub.buttons[btnKey];
+            buttonsHTML += renderButtonHTML(key, btnKey, btn);
+          });
+        }
       }
 
       div.innerHTML = `
         ${mediaHTML}
         <h2 class="text-2xl font-bold mb-3">${pub.title}</h2>
-        <button class="btn-show w-full py-2 rounded-lg font-semibold" onclick="toggleDetails('${key}')">
+        <button class="btn-show w-full py-2 rounded-lg font-semibold mb-3" onclick="toggleDetails('${key}')">
           Mostrar Opciones
         </button>
         <div id="details-${key}" class="hidden mt-4 space-y-3">
-          ${buttonsHTML}
+          ${buttonsHTML || "<p class='text-gray-400'>Sin botones disponibles</p>"}
         </div>
       `;
       return div;
     }
 
+    // --- Render HTML for each button (keeps your styling) ---
+    function renderButtonHTML(pubId, btnId, btn) {
+      // btn may have price, duration / days, quantity, keys (string or array)
+      const price = btn.price ?? btn.priceUSD ?? 0;
+      const duration = btn.duration ?? (btn.days ? `${btn.days} días` : "");
+      // count available keys (we will parse but don't mutate here)
+      const keysArr = parseKeysField(btn.keys);
+      const available = keysArr.filter(k => !k.usada).length;
+
+      // create safe id for key box
+      const safeBtnId = String(btnId).replace(/\W/g, "_");
+      const keyBoxId = `keyBox-${pubId}-${safeBtnId}`;
+
+      return `
+        <div class="btn-buy p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
+          <div class="text-2xl font-bold">$${price}</div>
+          <div class="text-sm font-semibold">${duration}</div>
+          <div class="text-xs text-gray-200 mt-1">🔑 ${available} claves disponibles</div>
+          <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-4 rounded-full text-sm" onclick="handleBuy('${pubId}','${safeBtnId}', ${price}, '${btnId}')">
+            Comprar
+          </button>
+          <div id="${keyBoxId}" class="hidden mt-3 key-box text-left"></div>
+        </div>
+      `;
+    }
+
+    // --- toggle details ---
     function toggleDetails(key) {
       const detailsEl = document.getElementById(`details-${key}`);
+      if (!detailsEl) return;
       detailsEl.classList.toggle("hidden");
     }
 
-    // --- NUEVO: cargar saldo del usuario ---
+    // --- sanitize email to DB key ---
     function sanitizeEmail(email) {
       return email.replace(/\./g, "_");
     }
 
+    // --- parse keys field supporting multiple formats:
+    //  - string: "key: 123, key: 456"
+    //  - array of strings: ["key: 123", "key: 456"]
+    //  - array of objects: [{key: "123", usada: false}, ...]
+    function parseKeysField(keysField) {
+      if (!keysField) return [];
+      // if it's an array
+      if (Array.isArray(keysField)) {
+        return keysField.map(k => {
+          if (typeof k === "string") {
+            // "key: 123" or "123"
+            const raw = k.trim();
+            const match = raw.match(/key:\s*(.+)/i);
+            const keyVal = match ? match[1].trim() : raw;
+            return { key: keyVal, usada: false };
+          } else if (typeof k === "object" && k.key) {
+            return { key: String(k.key).trim(), usada: !!k.usada };
+          } else {
+            return null;
+          }
+        }).filter(Boolean);
+      }
+      // if it's a string: "key: 123, key: 456"
+      if (typeof keysField === "string") {
+        const parts = keysField.split(",").map(s => s.trim()).filter(Boolean);
+        return parts.map(p => {
+          const match = p.match(/key:\s*(.+)/i);
+          const keyVal = match ? match[1].trim() : p;
+          return { key: keyVal, usada: false };
+        });
+      }
+      // fallback
+      return [];
+    }
+
+    // --- serialize keys back to same format (attempt to preserve type)
+    // We'll prefer to update string -> string, array -> array of objects
+    async function updateKeysField(pubId, btnKeyIdentifier, originalBtn, newKeysArr) {
+      // originalBtn may be object or array; determine type
+      const pubRef = db.ref(`publications/${pubId}`);
+      // fetch current to avoid race
+      const snap = await pubRef.once("value");
+      const pub = snap.val();
+      if (!pub) return;
+
+      // helper to set value at publications/<pubId>/buttons/<btnKey>/keys
+      // btnKeyIdentifier could be numeric index (if array) or string key (if object)
+      if (Array.isArray(pub.buttons)) {
+        // if buttons is array, btnKeyIdentifier should be index (string or number)
+        const idx = Number(btnKeyIdentifier);
+        if (Number.isFinite(idx)) {
+          // decide: if original was string, update as string; if original was array of objects, keep array of objects
+          if (typeof originalBtn.keys === "string") {
+            // convert back to comma-separated "key: X, key: Y"
+            const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+            await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(s);
+          } else if (Array.isArray(originalBtn.keys)) {
+            // save as array of objects { key: "...", usada: false } for remaining
+            const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
+            await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(arr);
+          } else {
+            // fallback to string
+            const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+            await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(s);
+          }
+        }
+      } else {
+        // buttons is object; btnKeyIdentifier is the property name
+        const prop = btnKeyIdentifier;
+        if (!pub.buttons || !pub.buttons[prop]) return;
+        if (typeof originalBtn.keys === "string") {
+          const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(s);
+        } else if (Array.isArray(originalBtn.keys)) {
+          const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
+          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(arr);
+        } else {
+          const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(s);
+        }
+      }
+    }
+
+    // --- handle buy click: pubId, safeBtnId (used for DOM ids), price, rawBtnId (original id) ---
+    async function handleBuy(pubId, safeBtnId, price, rawBtnId) {
+      try {
+        const email = currentUser;
+        const userKey = sanitizeEmail(email);
+        const userRef = db.ref(`users/${userKey}`);
+        const balanceSnap = await userRef.child("balance").once("value");
+        let balance = balanceSnap.val() || 0;
+
+        if (balance < price) {
+          // show small in-card message using same style
+          alert("⚠️ No tienes saldo suficiente para esta compra.");
+          return;
+        }
+
+        // load latest publication data (to avoid race)
+        const pubSnap = await db.ref(`publications/${pubId}`).once("value");
+        const pub = pubSnap.val();
+        if (!pub) {
+          alert("Error: publicación no encontrada.");
+          return;
+        }
+
+        // find the correct button object in the current pub
+        let originalBtn = null;
+        let btnIndexOrKey = null;
+        if (Array.isArray(pub.buttons)) {
+          // safeBtnId was stringified index earlier
+          const idx = Number(safeBtnId);
+          originalBtn = pub.buttons[idx];
+          btnIndexOrKey = idx;
+        } else {
+          // buttons is object: find property that matches rawBtnId
+          // rawBtnId was originally passed as btnId (could be prop name)
+          if (pub.buttons.hasOwnProperty(rawBtnId)) {
+            originalBtn = pub.buttons[rawBtnId];
+            btnIndexOrKey = rawBtnId;
+          } else {
+            // rawBtnId might be numeric string even in object case -> attempt to find by index
+            const keys = Object.keys(pub.buttons);
+            const idx = Number(rawBtnId);
+            if (Number.isFinite(idx) && keys[idx]) {
+              btnIndexOrKey = keys[idx];
+              originalBtn = pub.buttons[btnIndexOrKey];
+            }
+          }
+        }
+
+        if (!originalBtn) {
+          alert("Error: opción de compra no encontrada.");
+          return;
+        }
+
+        // parse keys for this button
+        const keysArr = parseKeysField(originalBtn.keys);
+        const availableIndex = keysArr.findIndex(k => !k.usada && k.key);
+        if (availableIndex === -1) {
+          alert("❌ Lo sentimos — no quedan claves disponibles para esta opción.");
+          return;
+        }
+
+        // take the key
+        const selected = keysArr[availableIndex];
+
+        // 1) descontar saldo (transaction style)
+        const newBalance = balance - price;
+        await userRef.child("balance").set(newBalance);
+
+        // 2) remove or mark the key used in DB
+        // Remove selected key from keysArr (so it won't be delivered again)
+        // We'll produce a new array without that element
+        const updatedKeys = keysArr.slice(); // copy
+        // Option A: remove element
+        updatedKeys.splice(availableIndex, 1);
+
+        // update DB maintaining original storage type
+        await updateKeysField(pubId, btnIndexOrKey, originalBtn, updatedKeys);
+
+        // 3) guardar historial en users/<userKey>/purchases
+        const purchaseRef = userRef.child("purchases").push();
+        await purchaseRef.set({
+          pubId,
+          title: pub.title || "",
+          optionText: originalBtn.text || originalBtn.option || "",
+          key: selected.key,
+          price: price,
+          days: originalBtn.days || originalBtn.duration || "",
+          date: new Date().toISOString()
+        });
+
+        // 4) Mostrar la key en el card (solo una vez)
+        const keyBoxId = `keyBox-${pubId}-${safeBtnId}`;
+        const keyBox = document.getElementById(keyBoxId);
+        if (keyBox) {
+          keyBox.classList.remove("hidden");
+          keyBox.innerHTML = `
+            <p class="small-muted mb-2">🔐 Tu clave (se muestra solo una vez):</p>
+            <div class="mono text-green-300 font-semibold p-2 rounded">${selected.key}</div>
+            <div class="mt-2 flex justify-center">
+              <button onclick="copiarKey('${selected.key}')" class="py-1 px-3 rounded bg-white text-blue-900 font-bold">Copiar</button>
+            </div>
+          `;
+        } else {
+          // fallback alert
+          alert("Clave entregada: " + selected.key);
+        }
+
+        // refresh balance on UI
+        userBalanceEl.textContent = `$${newBalance.toFixed(2)}`;
+
+        // refresh purchases list if on that tab
+        if (tabKeys.classList.contains("active")) {
+          loadUserPurchases(currentUser);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Ocurrió un error al procesar la compra.");
+      }
+    }
+
+    // --- copiar clave ---
+    function copiarKey(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert("🔑 Clave copiada al portapapeles.");
+      }).catch(() => {
+        alert("No se pudo copiar la clave automáticamente. Selecciónala y copia manualmente.");
+      });
+    }
+
+    // --- cargar saldo del usuario ---
     function loadUserBalance(email) {
       const userKey = sanitizeEmail(email);
       const balanceRef = db.ref(`users/${userKey}/balance`);
       balanceRef.on("value", snapshot => {
         const balance = snapshot.val() || 0;
-        userBalanceEl.textContent = `$${balance.toFixed(2)}`;
+        userBalanceEl.textContent = `$${Number(balance).toFixed(2)}`;
       });
     }
+
+    // --- cargar historial del usuario (Mis Keys) ---
+    async function loadUserPurchases(email) {
+      const userKey = sanitizeEmail(email);
+      myKeysList.innerHTML = "<p class='small-muted'>Cargando...</p>";
+      const snap = await db.ref(`users/${userKey}/purchases`).once("value");
+      myKeysList.innerHTML = "";
+      const data = snap.val();
+      if (!data) {
+        myKeysList.innerHTML = "<p class='small-muted'>No has comprado claves aún.</p>";
+        return;
+      }
+      const items = Object.keys(data).map(k => ({ id: k, ...data[k] })).reverse();
+      items.forEach(it => {
+        const div = document.createElement("div");
+        div.className = "card rounded-lg p-4";
+        const date = new Date(it.date).toLocaleString();
+        div.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-lg font-semibold">${it.title || "Sin título"}</div>
+              <div class="small-muted">${it.optionText || ""} • ${it.days || ""} </div>
+              <div class="small-muted mt-2">Comprado: ${date}</div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-green-400">$${Number(it.price || 0).toFixed(2)}</div>
+              <div class="mono text-sm text-green-300 mt-2">${it.key}</div>
+              <button class="mt-2 bg-white text-blue-900 font-bold py-1 px-3 rounded" onclick="copiarKey('${it.key}')">Copiar</button>
+            </div>
+          </div>
+        `;
+        myKeysList.appendChild(div);
+      });
+    }
+
+    // show Publications tab by default
+    showTab("pubs");
   </script>
 </body>
 </html>
