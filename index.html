@@ -3,162 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SociosXIT - Acceso</title>
+  <title>Login | SociosXit</title>
+  <script type="module">
+    // --- Firebase Configuración ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-  <!-- Tailwind -->
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
-  <style>
-    /* Fondo animado moderno */
-    body {
-      margin: 0;
-      height: 100vh;
-      background: radial-gradient(circle at 20% 20%, #2af599, transparent 50%),
-                  radial-gradient(circle at 80% 80%, #ff0080, transparent 50%),
-                  radial-gradient(circle at 50% 50%, #7928ca, transparent 50%);
-      background-size: 200% 200%;
-      animation: moveBg 8s ease infinite;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: "Poppins", sans-serif;
-      overflow: hidden;
-    }
-
-    @keyframes moveBg {
-      0% { background-position: 0% 0%; }
-      50% { background-position: 100% 100%; }
-      100% { background-position: 0% 0%; }
-    }
-
-    .glass-card {
-      width: 100%;
-      max-width: 400px;
-      background: rgba(255, 255, 255, 0.12);
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 20px;
-      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1),
-                  0 0 50px rgba(255, 0, 255, 0.3);
-      padding: 2rem;
-      text-align: center;
-      animation: fadeIn 0.8s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 1rem;
-      text-shadow: 0 0 10px #ff80ff;
-    }
-
-    p {
-      color: rgba(255,255,255,0.85);
-      font-size: 0.95rem;
-    }
-
-    input {
-      width: 100%;
-      margin-top: 0.8rem;
-      padding: 0.9rem;
-      border-radius: 10px;
-      border: none;
-      background: rgba(255,255,255,0.15);
-      color: white;
-      text-align: center;
-      font-weight: 500;
-      outline: none;
-      transition: all 0.2s;
-    }
-
-    input:focus {
-      background: rgba(255,255,255,0.25);
-      box-shadow: 0 0 10px #ff80ff;
-    }
-
-    input::placeholder {
-      color: rgba(255,255,255,0.7);
-    }
-
-    button {
-      width: 100%;
-      margin-top: 1rem;
-      padding: 0.9rem;
-      font-weight: 700;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      color: white;
-      transition: all 0.3s;
-    }
-
-    button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px currentColor;
-    }
-
-    #loginBtn { background: linear-gradient(90deg, #00c6ff, #0072ff); }
-    #registerBtn { background: linear-gradient(90deg, #ff00cc, #3333ff); }
-
-    .switch {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .switch a {
-      color: #ffb3ff;
-      cursor: pointer;
-      text-decoration: underline;
-      transition: color 0.3s;
-    }
-
-    .switch a:hover {
-      color: white;
-    }
-
-    .hidden {
-      display: none;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="glass-card">
-    <h1>SociosXIT</h1>
-
-    <!-- LOGIN -->
-    <div id="loginView">
-      <input id="loginUser" placeholder="Usuario" />
-      <input id="loginPass" type="password" placeholder="Contraseña" />
-      <button id="loginBtn">Iniciar sesión</button>
-      <div class="switch">
-        ¿No tienes cuenta? <a id="showRegister">Regístrate</a>
-      </div>
-    </div>
-
-    <!-- REGISTRO -->
-    <div id="registerView" class="hidden">
-      <input id="regUser" placeholder="Nuevo usuario" />
-      <input id="regPass" type="password" placeholder="Nueva contraseña" />
-      <button id="registerBtn">Crear cuenta</button>
-      <div class="switch">
-        ¿Ya tienes cuenta? <a id="showLogin">Inicia sesión</a>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // 🔥 Firebase original (tu misma configuración)
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
       authDomain: "sociosxit-5f841.firebaseapp.com",
@@ -168,59 +18,177 @@
       messagingSenderId: "364183519851",
       appId: "1:364183519851:web:52a5a95d2c57f8f9f5e72e"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const usersRef = db.ref("users");
 
-    // 🔄 Alternar vistas
-    const loginView = document.getElementById("loginView");
-    const registerView = document.getElementById("registerView");
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
-    document.getElementById("showRegister").onclick = () => {
-      loginView.classList.add("hidden");
-      registerView.classList.remove("hidden");
-    };
-
-    document.getElementById("showLogin").onclick = () => {
-      registerView.classList.add("hidden");
-      loginView.classList.remove("hidden");
-    };
-
-    // 🧾 Registro
-    document.getElementById("registerBtn").onclick = async () => {
-      const user = regUser.value.trim();
-      const pass = regPass.value.trim();
-
-      if (!user || !pass) return alert("Completa todos los campos");
-
-      const snap = await usersRef.child(user).once("value");
-      if (snap.exists()) return alert("El usuario ya existe");
-
-      await usersRef.child(user).set({ password: pass, verified: true });
-      alert("Cuenta creada correctamente. Ahora inicia sesión.");
-      registerView.classList.add("hidden");
-      loginView.classList.remove("hidden");
-    };
-
-    // 🔐 Login
-    document.getElementById("loginBtn").onclick = async () => {
-      const user = loginUser.value.trim();
-      const pass = loginPass.value.trim();
-
-      if (!user || !pass) return alert("Completa todos los campos");
-
-      const snap = await usersRef.child(user).once("value");
-      if (!snap.exists() || snap.val().password !== pass) {
-        return alert("Usuario o contraseña incorrectos");
+    // --- Función Login ---
+    async function loginUser(e) {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        alert("Inicio de sesión exitoso ✅");
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert("Error al iniciar sesión: " + error.message);
       }
+    }
 
-      if (!snap.val().verified) {
-        return alert("Tu cuenta no está verificada aún.");
+    // --- Función Registro ---
+    async function registerUser(e) {
+      e.preventDefault();
+      const email = document.getElementById("registerEmail").value;
+      const password = document.getElementById("registerPassword").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Usuario registrado correctamente ✅");
+        document.getElementById("registerForm").reset();
+        switchToLogin();
+      } catch (error) {
+        alert("Error al registrar: " + error.message);
       }
+    }
 
-      sessionStorage.setItem("sociosxit_user", user);
-      window.location.href = "dashboard.html";
+    // --- Cambio entre login y registro ---
+    window.switchToRegister = function() {
+      document.querySelector(".container").classList.add("active");
     };
+    window.switchToLogin = function() {
+      document.querySelector(".container").classList.remove("active");
+    };
+
+    // --- Eventos ---
+    window.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("loginForm").addEventListener("submit", loginUser);
+      document.getElementById("registerForm").addEventListener("submit", registerUser);
+    });
   </script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
+      margin: 0;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: all 0.5s ease;
+    }
+
+    .form-container {
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    h2 {
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    input {
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 5px rgba(79,70,229,0.5);
+    }
+
+    button {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #4338ca;
+    }
+
+    p {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    a {
+      color: #06b6d4;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Transición entre login y registro */
+    .register-section {
+      display: none;
+    }
+
+    .container.active .login-section {
+      display: none;
+    }
+
+    .container.active .register-section {
+      display: block;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        width: 95%;
+        border-radius: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- LOGIN -->
+    <div class="form-container login-section">
+      <h2>Iniciar Sesión</h2>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
+        <input type="password" id="loginPassword" placeholder="Contraseña" required />
+        <button type="submit">Entrar</button>
+      </form>
+      <p>¿No tienes cuenta? <a onclick="switchToRegister()">Regístrate</a></p>
+    </div>
+
+    <!-- REGISTRO -->
+    <div class="form-container register-section">
+      <h2>Crear Cuenta</h2>
+      <form id="registerForm">
+        <input type="email" id="registerEmail" placeholder="Correo electrónico" required />
+        <input type="password" id="registerPassword" placeholder="Contraseña" required />
+        <button type="submit">Registrarse</button>
+      </form>
+      <p>¿Ya tienes cuenta? <a onclick="switchToLogin()">Inicia sesión</a></p>
+    </div>
+  </div>
 </body>
 </html>
