@@ -11,7 +11,7 @@
   <style>
     /* Fondo animado con colores vivos */
     body {
-      background: linear-gradient(135deg, #ff0080, #7928ca, #2af598);
+      background: linear-gradient(135deg, #ff0080, #7928ca, #2af599);
       background-size: 400% 400%;
       animation: bgMove 10s ease infinite;
       min-height: 100vh;
@@ -19,9 +19,10 @@
       align-items: center;
       justify-content: center;
       font-family: 'Poppins', sans-serif;
-      overflow-x: hidden; /* <--- Previene el scroll horizontal no deseado */
       margin: 0;
-      padding: 20px 0; /* <--- Asegura un mínimo de padding vertical en pantallas pequeñas */
+      /* AJUSTE CLAVE 1: Aplicamos padding al body para que el contenido no toque los bordes */
+      padding: 20px; 
+      box-sizing: border-box; 
     }
 
     @keyframes bgMove {
@@ -40,18 +41,19 @@
       border-radius: 20px;
       padding: 2.5rem;
       
-      /* AJUSTE CLAVE: Priorizamos el 90% del ancho disponible */
-      width: 90vw; /* Usa el 90% del ancho del viewport */
-      max-width: 380px; 
+      /* AJUSTE CLAVE 2: Forzamos el ancho a ser el 100% del espacio disponible, pero limitado */
+      width: 100%; 
+      /* Limitamos el ancho a 380px, pero permitimos que se encoja solo hasta 320px */
       min-width: 320px; 
       
-      /* El margen auto se encargará de centrarlo si el 90vw no cubre toda la pantalla */
-      margin: 20px auto;
-      
+      /* AJUSTE CLAVE 3: Usamos calc() para asegurar un margen de 40px (20px por lado) */
+      max-width: min(380px, calc(100vw - 40px)); 
+
       box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 0 35px rgba(255,0,150,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: fadeIn 0.6s ease;
       box-sizing: border-box;
+      /* El centrado se logra ahora con 'justify-content: center' en el body */
     }
 
     .card:hover {
