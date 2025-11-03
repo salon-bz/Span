@@ -48,8 +48,36 @@
       box-shadow: 0 8px 30px rgba(0,198,255,0.12);
       transform: translateY(-2px);
     }
+
+    /* recuadro key */
+    .key-box {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(0,255,136,0.12);
+      padding: 12px;
+      border-radius: 12px;
+      margin-top: 10px;
+    }
     .small-muted { color: rgba(255,255,255,0.7); font-size:0.9rem; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+
+    /* modal */
+    .modal-backdrop {
+      position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.5); z-index: 60;
+    }
+    .modal {
+      width: 92%;
+      max-width: 520px;
+      border-radius: 12px;
+      padding: 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(8px);
+      color: white;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+    .price-badge { font-size: 1.5rem; font-weight:700; }
   </style>
 </head>
 
@@ -96,6 +124,31 @@
     <div id="myKeysList" class="grid grid-cols-1 gap-4"></div>
   </section>
 
+  <!-- Modales -->
+  <div id="confirmModal" class="modal-backdrop">
+    <div class="modal">
+      <div id="confirmContent">
+        <div class="text-lg font-semibold mb-2">Confirmar compra</div>
+        <div id="confirmText" class="small-muted">¿Deseas comprar esta key?</div>
+      </div>
+      <div class="actions">
+        <button id="confirmCancel" class="py-2 px-4 rounded-lg border border-white/10">Cancelar</button>
+        <button id="confirmOk" class="py-2 px-4 rounded-lg bg-green-500 font-semibold">Comprar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="keyModal" class="modal-backdrop">
+    <div class="modal">
+      <div class="text-lg font-semibold mb-2">Clave entregada</div>
+      <div id="keyModalContent" class="small-muted">Aquí va la clave</div>
+      <div class="actions">
+        <button id="keyCopyBtn" class="py-2 px-4 rounded-lg bg-white text-blue-900 font-semibold">Copiar</button>
+        <button id="keyCloseBtn" class="py-2 px-4 rounded-lg border border-white/10">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // --- Firebase Configuración ---
     const firebaseConfig = {
@@ -111,6 +164,7 @@
     const db = firebase.database();
     const pubsRef = db.ref("publications");
 
+    // UI elements
     const userNameEl = document.getElementById("userName");
     const userBalanceEl = document.getElementById("userBalance");
     const logoutBtn = document.getElementById("logoutBtn");
@@ -118,12 +172,22 @@
     const myKeysList = document.getElementById("myKeysList");
     const myKeysContainer = document.getElementById("myKeysContainer");
 
+    // modals
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmText = document.getElementById("confirmText");
+    const confirmOk = document.getElementById("confirmOk");
+    const confirmCancel = document.getElementById("confirmCancel");
+
+    const keyModal = document.getElementById("keyModal");
+    const keyModalContent = document.getElementById("keyModalContent");
+    const keyCopyBtn = document.getElementById("keyCopyBtn");
+    const keyCloseBtn = document.getElementById("keyCloseBtn");
+
     // Tabs
     const tabPublicaciones = document.getElementById("tabPublicaciones");
     const tabKeys = document.getElementById("tabKeys");
     tabPublicaciones.onclick = () => showTab("pubs");
     tabKeys.onclick = () => showTab("keys");
-
     function showTab(tab) {
       if (tab === "pubs") {
         publicationsContainer.classList.remove("hidden");
@@ -166,11 +230,12 @@
       });
     });
 
+    // create publication card (keeps your exact design)
     function createPublicationElement(pub, key) {
       const div = document.createElement("div");
       div.className = "card rounded-xl overflow-hidden shadow-lg p-5";
-      let mediaHTML = "";
 
+      let mediaHTML = "";
       if (pub.mediaUrl) {
         if (pub.mediaUrl.includes("youtube.com") || pub.mediaUrl.includes("youtu.be")) {
           const videoId = pub.mediaUrl.split('v=')[1] || pub.mediaUrl.split('/').pop();
@@ -183,20 +248,34 @@
         }
       }
 
+      // buttons area: transform the info block into a clickable buy button
       let buttonsHTML = "";
       if (pub.buttons) {
         Object.keys(pub.buttons).forEach(btnKey => {
           const btn = pub.buttons[btnKey];
-          const price = parseFloat(btn.price || 0).toFixed(2);
-          const availableKeys = (btn.keys && typeof btn.keys === "string")
-            ? btn.keys.split(",").filter(k => k.trim() !== "").length
-            : Array.isArray(btn.keys) ? btn.keys.length : 0;
+          // price as decimal with two places
+          const priceNum = parseFloat(btn.price || 0);
+          const price = Number.isFinite(priceNum) ? priceNum.toFixed(2) : "0.00";
+          const duration = btn.duration || (btn.days ? `${btn.days} días` : "");
+          const keysCount = countKeys(btn.keys);
 
+          // safe id for DOM
+          const safeBtnId = String(btnKey).replace(/\W/g, "_");
+          // onclick will open confirm modal and pass publish id + btnKey
           buttonsHTML += `
             <div class="btn-buy p-4 rounded-lg text-center transition-transform hover:scale-105 cursor-pointer mb-3">
-              <div class="text-2xl font-bold">$${price}</div>
-              <div class="text-sm font-semibold">${btn.duration}</div>
-              <div class="text-xs text-gray-200 mt-1">🔑 ${availableKeys} claves disponibles</div>
+              <button onclick="openConfirmModal('${key}','${safeBtnId}', ${priceNum}, '${btnKey}')" class="w-full text-left">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-2xl font-bold">$${price}</div>
+                    <div class="text-sm font-semibold">${duration || '—'}</div>
+                    <div class="text-xs text-gray-200 mt-1">🔑 ${keysCount} claves disponibles</div>
+                  </div>
+                  <div>
+                    <div class="py-2 px-3 rounded-full bg-white text-blue-900 font-bold">Comprar</div>
+                  </div>
+                </div>
+              </button>
             </div>`;
         });
       }
@@ -204,29 +283,230 @@
       div.innerHTML = `
         ${mediaHTML}
         <h2 class="text-2xl font-bold mb-3">${pub.title}</h2>
-        <button class="btn-show w-full py-2 rounded-lg font-semibold" onclick="toggleDetails('${key}')">Mostrar Opciones</button>
-        <div id="details-${key}" class="hidden mt-4 space-y-3">${buttonsHTML}</div>
+        <button class="btn-show w-full py-2 rounded-lg font-semibold mb-3" onclick="toggleDetails('${key}')">Mostrar Opciones</button>
+        <div id="details-${key}" class="hidden mt-4 space-y-3">${buttonsHTML || "<p class='text-gray-400'>Sin botones disponibles</p>"}</div>
       `;
       return div;
     }
 
     function toggleDetails(key) {
-      document.getElementById(`details-${key}`).classList.toggle("hidden");
+      const el = document.getElementById(`details-${key}`);
+      if (el) el.classList.toggle("hidden");
     }
 
+    // --- Helpers for keys parsing + counting ---
+    function countKeys(keysField) {
+      if (!keysField) return 0;
+      if (Array.isArray(keysField)) return keysField.length;
+      if (typeof keysField === "string") {
+        return keysField.split(",").map(s => s.trim()).filter(Boolean).length;
+      }
+      return 0;
+    }
+
+    function parseKeysField(keysField) {
+      // returns array of objects: { key: "...", usada: false }
+      if (!keysField) return [];
+      if (Array.isArray(keysField)) {
+        return keysField.map(k => {
+          if (typeof k === "string") {
+            const raw = k.trim();
+            const m = raw.match(/key\s*:\s*(.+)/i);
+            const v = m ? m[1].trim() : raw;
+            return { key: v, usada: false };
+          } else if (typeof k === "object" && k.key) {
+            return { key: String(k.key).trim(), usada: !!k.usada };
+          } else return null;
+        }).filter(Boolean);
+      }
+      if (typeof keysField === "string") {
+        const parts = keysField.split(",").map(s => s.trim()).filter(Boolean);
+        return parts.map(p => {
+          const m = p.match(/key\s*:\s*(.+)/i);
+          const v = m ? m[1].trim() : p;
+          return { key: v, usada: false };
+        });
+      }
+      return [];
+    }
+
+    // write keys back preserving original type (string => string, array => array of objects)
+    async function updateKeysField(pubId, btnKeyIdentifier, originalBtn, newKeysArr) {
+      // fetch current publication to avoid clobbering concurrent edits
+      const pubSnap = await db.ref(`publications/${pubId}`).once("value");
+      const pub = pubSnap.val();
+      if (!pub) return;
+
+      // determine where btn is located
+      if (Array.isArray(pub.buttons)) {
+        const idx = Number(btnKeyIdentifier);
+        if (!Number.isFinite(idx)) return;
+        if (typeof originalBtn.keys === "string") {
+          const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+          await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(s);
+        } else {
+          const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
+          await db.ref(`publications/${pubId}/buttons/${idx}/keys`).set(arr);
+        }
+      } else {
+        const prop = btnKeyIdentifier;
+        if (!pub.buttons || !pub.buttons[prop]) return;
+        if (typeof originalBtn.keys === "string") {
+          const s = newKeysArr.map(k => `key: ${k.key}`).join(", ");
+          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(s);
+        } else {
+          const arr = newKeysArr.map(k => ({ key: k.key, usada: !!k.usada }));
+          await db.ref(`publications/${pubId}/buttons/${prop}/keys`).set(arr);
+        }
+      }
+    }
+
+    // --- Confirm modal flow ---
+    let _pendingPurchase = null; // { pubId, btnId, price, rawBtnId, originalBtnSnapshot }
+
+    function openConfirmModal(pubId, safeBtnId, price, rawBtnId) {
+      // load button snapshot to show info
+      confirmModal.style.display = "flex";
+      confirmText.textContent = `¿Deseas comprar esta key por $${Number(price).toFixed(2)} USD?`;
+      _pendingPurchase = { pubId, safeBtnId, price: Number(price), rawBtnId };
+    }
+    confirmCancel.onclick = () => {
+      confirmModal.style.display = "none";
+      _pendingPurchase = null;
+    };
+    confirmOk.onclick = async () => {
+      if (!_pendingPurchase) return;
+      confirmModal.style.display = "none";
+      await comprarKey(_pendingPurchase.pubId, _pendingPurchase.safeBtnId, _pendingPurchase.price, _pendingPurchase.rawBtnId);
+      _pendingPurchase = null;
+    };
+
+    // --- Main purchase function ---
+    async function comprarKey(pubId, safeBtnId, price, rawBtnId) {
+      try {
+        const email = currentUser;
+        const userKey = sanitizeEmail(email);
+        const userRef = db.ref(`users/${userKey}`);
+
+        // get balance (support string or number)
+        const balSnap = await userRef.child("balance").once("value");
+        let balance = parseFloat(balSnap.val() || 0);
+        if (isNaN(balance)) balance = 0;
+
+        if (balance < price) {
+          alert("⚠️ No tienes saldo suficiente para esta compra.");
+          return;
+        }
+
+        // load latest publication data
+        const pubSnap = await db.ref(`publications/${pubId}`).once("value");
+        const pub = pubSnap.val();
+        if (!pub) { alert("Publicación no encontrada."); return; }
+
+        // find the original button object (array index or property)
+        let originalBtn = null;
+        let btnIndexOrKey = null;
+        if (Array.isArray(pub.buttons)) {
+          const idx = Number(safeBtnId);
+          originalBtn = pub.buttons[idx];
+          btnIndexOrKey = idx;
+        } else {
+          // try direct property
+          if (pub.buttons.hasOwnProperty(rawBtnId)) {
+            originalBtn = pub.buttons[rawBtnId];
+            btnIndexOrKey = rawBtnId;
+          } else {
+            // fallback: find by index order mapping
+            const keys = Object.keys(pub.buttons || {});
+            const idx = Number(safeBtnId);
+            if (Number.isFinite(idx) && keys[idx]) {
+              btnIndexOrKey = keys[idx];
+              originalBtn = pub.buttons[btnIndexOrKey];
+            }
+          }
+        }
+
+        if (!originalBtn) { alert("Opción no encontrada."); return; }
+
+        // parse keys and pick first available
+        const keysArr = parseKeysField(originalBtn.keys);
+        if (!keysArr.length) { alert("❌ No quedan claves disponibles para esta opción."); return; }
+        // choose first available (you asked earlier to "take first")
+        const selected = keysArr[0];
+
+        // 1) update balance (atomic-ish: read again then set)
+        const balSnap2 = await userRef.child("balance").once("value");
+        let balanceNow = parseFloat(balSnap2.val() || 0);
+        if (isNaN(balanceNow)) balanceNow = 0;
+        if (balanceNow < price) { alert("⚠️ Saldo insuficiente."); return; }
+        const newBalance = (balanceNow - price);
+        await userRef.child("balance").set(Number(newBalance.toFixed(2)));
+
+        // 2) remove selected key from keys array (do not leave it visible)
+        const updatedKeys = keysArr.slice(); // copy
+        updatedKeys.shift(); // remove first
+        await updateKeysField(pubId, btnIndexOrKey, originalBtn, updatedKeys);
+
+        // 3) save purchase in user history
+        const purchaseRef = userRef.child("purchases").push();
+        await purchaseRef.set({
+          pubId,
+          title: pub.title || "",
+          optionText: originalBtn.text || originalBtn.option || "",
+          key: selected.key,
+          price: Number(price),
+          days: originalBtn.days || originalBtn.duration || "",
+          date: new Date().toISOString()
+        });
+
+        // 4) show key modal with copy button
+        keyModalContent.innerHTML = `
+          <div class="small-muted mb-2">${pub.title || "Producto" } • ${originalBtn.text || ""}</div>
+          <div class="mono text-green-300 font-semibold p-2 rounded">${selected.key}</div>
+        `;
+        keyModal.style.display = "flex";
+
+        // set copy button behavior
+        keyCopyBtn.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(selected.key);
+            alert("🔑 Clave copiada al portapapeles.");
+          } catch {
+            alert("No se pudo copiar automáticamente. Selecciona y copia manualmente.");
+          }
+        };
+        keyCloseBtn.onclick = () => {
+          keyModal.style.display = "none";
+        };
+
+        // 5) update UI balance (listener will also update but we set immediate)
+        userBalanceEl.textContent = `$${Number(newBalance).toFixed(2)}`;
+
+        // refresh purchases list if open
+        if (tabKeys.classList.contains("active")) {
+          loadUserPurchases(currentUser);
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Ocurrió un error al procesar la compra.");
+      }
+    }
+
+    // --- sanitize email ---
     function sanitizeEmail(email) {
       return email.replace(/\./g, "_");
     }
 
+    // --- load user balance (real-time) ---
     function loadUserBalance(email) {
       const userKey = sanitizeEmail(email);
       db.ref(`users/${userKey}/balance`).on("value", snap => {
-        const balance = parseFloat(snap.val() || 0).toFixed(2);
-        userBalanceEl.textContent = `$${balance}`;
+        const balance = parseFloat(snap.val() || 0) || 0;
+        userBalanceEl.textContent = `$${Number(balance).toFixed(2)}`;
       });
     }
 
-    // --- Historial de keys ---
+    // --- Historial (Mis Keys) with search & filter ---
     function loadUserPurchases(email) {
       const userKey = sanitizeEmail(email);
       const purchasesRef = db.ref(`users/${userKey}/purchases`);
@@ -302,6 +582,7 @@
       navigator.clipboard.writeText(text).then(() => alert("🔑 Clave copiada al portapapeles."));
     }
 
+    // show publications by default
     showTab("pubs");
   </script>
 </body>
