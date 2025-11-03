@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SociosXIT - Acceso</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
@@ -20,6 +20,7 @@
       justify-content: center;
       font-family: 'Poppins', sans-serif;
       overflow: hidden;
+      margin: 0;
     }
 
     @keyframes bgMove {
@@ -39,9 +40,11 @@
       padding: 2.5rem;
       width: 100%;
       max-width: 380px;
+      min-width: 320px; /* <-- asegura que no se achique */
       box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 0 35px rgba(255,0,150,0.4);
       transition: transform 0.3s ease, box-shadow 0.3s ease;
       animation: fadeIn 0.6s ease;
+      box-sizing: border-box;
     }
 
     .card:hover {
@@ -49,13 +52,13 @@
       box-shadow: 0 0 25px rgba(255,0,150,0.6), 0 0 45px rgba(59,130,246,0.6);
     }
 
-    /* Título brillante */
     h1 {
       color: white;
       font-size: 2rem;
       font-weight: 800;
       text-shadow: 0 0 15px #ff80ff, 0 0 25px #60a5fa;
       margin-bottom: 1.5rem;
+      text-align: center;
     }
 
     input {
@@ -70,6 +73,7 @@
       outline: none;
       transition: all 0.2s;
       font-weight: 500;
+      box-sizing: border-box;
     }
 
     input::placeholder { color: rgba(255,255,255,0.7); }
@@ -91,6 +95,7 @@
       transition: all 0.3s;
       position: relative;
       overflow: hidden;
+      box-sizing: border-box;
     }
 
     button:hover {
@@ -105,7 +110,6 @@
     #logoutBtn { background: linear-gradient(90deg, #ff416c, #ff4b2b); }
     #goBotBtn { background: linear-gradient(90deg, #ffb100, #ff5e00); }
 
-    /* Enlaces */
     a {
       color: #ffe0ff;
       font-weight: 600;
@@ -120,6 +124,7 @@
 
     p {
       color: rgba(255,255,255,0.85);
+      text-align: center;
     }
 
     .hidden { display: none; }
@@ -168,7 +173,6 @@
   </div>
 
   <script>
-    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
       authDomain: "sociosxit-5f841.firebaseapp.com",
@@ -185,11 +189,9 @@
     const views = ["loginView", "registerView", "verifyView", "profileView"];
     const show = (id) => views.forEach(v => document.getElementById(v).classList.toggle("hidden", v !== id));
 
-    // Navegación básica
     document.getElementById("goRegister").onclick = () => show("registerView");
     document.getElementById("goLogin").onclick = () => show("loginView");
 
-    // Registro
     document.getElementById("regBtn").onclick = async () => {
       const user = regUser.value.trim();
       const pass = regPass.value.trim();
@@ -201,14 +203,12 @@
       show("verifyView");
     };
 
-    // Pedir código (abre Telegram y oculta botón)
     const goBotBtn = document.getElementById("goBotBtn");
     goBotBtn.onclick = () => {
       window.open("http://t.me/Socios66_bot", "_blank");
       goBotBtn.classList.add("hidden");
     };
 
-    // Verificación
     document.getElementById("verifyBtn").onclick = async () => {
       const code = verifyCode.value.trim();
       const user = regUser.value.trim() || loginUser.value.trim();
@@ -217,33 +217,23 @@
       if (!snap.exists()) return alert("Código inválido o usado");
       await codeRef.remove();
       await usersRef.child(user).update({ verified: true });
-      
-      // --- CAMBIO AQUÍ ---
-      sessionStorage.setItem("sociosxit_user", user); // Guarda al usuario
-      window.location.href = "dashboard.html"; // Redirige al dashboard
-      // --- FIN DEL CAMBIO ---
+      sessionStorage.setItem("sociosxit_user", user);
+      window.location.href = "dashboard.html";
     };
 
-    // Login
     document.getElementById("loginBtn").onclick = async () => {
       const user = loginUser.value.trim();
       const pass = loginPass.value.trim();
       const snap = await usersRef.child(user).once("value");
       if (!snap.exists() || snap.val().password !== pass) return alert("Datos incorrectos");
       if (!snap.val().verified) return show("verifyView");
-      
-      // --- CAMBIO AQUÍ ---
-      sessionStorage.setItem("sociosxit_user", user); // Guarda al usuario
-      window.location.href = "dashboard.html"; // Redirige al dashboard
-      // --- FIN DEL CAMBIO ---
+      sessionStorage.setItem("sociosxit_user", user);
+      window.location.href = "dashboard.html";
     };
 
-    // Logout
     document.getElementById("logoutBtn").onclick = () => {
-        // --- CAMBIO AQUÍ ---
-        sessionStorage.removeItem("sociosxit_user"); // Limpia la sesión
-        // --- FIN DEL CAMBIO ---
-        show("loginView");
+      sessionStorage.removeItem("sociosxit_user");
+      show("loginView");
     };
   </script>
 </body>
