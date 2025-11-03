@@ -2,37 +2,37 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <!-- ✅ agregado -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="HandheldFriendly" content="true">
   <meta name="mobile-web-app-capable" content="yes">
-
+  <meta name="theme-color" content="#7928ca">
   <title>SociosXIT - Acceso</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
   <style>
-    /* ✅ agregado */
-    html {
-      zoom: 100%;
-      -webkit-text-size-adjust: 100%;
+    /* Fondo animado con colores vivos */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
-    /* Fondo animado con colores vivos */
     body {
       background: linear-gradient(135deg, #ff0080, #7928ca, #2af599);
       background-size: 400% 400%;
       animation: bgMove 10s ease infinite;
-      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Poppins', sans-serif;
-      margin: 0;
-      /* AJUSTE CLAVE 1: Aplicamos padding al body para que el contenido no toque los bordes */
-      padding: 20px; 
-      box-sizing: border-box; 
+      padding: 20px;
+      overflow-x: hidden;
     }
 
     @keyframes bgMove {
@@ -44,40 +44,31 @@
     /* Tarjeta principal */
     .card {
       position: relative;
-      z-index: 1;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.12);
       backdrop-filter: blur(15px);
       border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 20px;
-      padding: 2.5rem;
-      
-      /* AJUSTE CLAVE 2: Forzamos el ancho a ser el 100% del espacio disponible, pero limitado */
-      width: 100%; 
-      /* Limitamos el ancho a 380px, pero permitimos que se encoja solo hasta 320px */
-      min-width: 320px; 
-      
-      /* AJUSTE CLAVE 3: Usamos calc() para asegurar un margen de 40px (20px por lado) */
-      max-width: min(380px, calc(100vw - 40px)); 
-
-      box-shadow: 0 0 25px rgba(255,255,255,0.2), 0 0 35px rgba(255,0,150,0.4);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 22px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 400px;
+      min-width: 300px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.15), 0 0 35px rgba(255,0,150,0.4);
+      transition: all 0.4s ease;
       animation: fadeIn 0.6s ease;
-      box-sizing: border-box;
-      /* El centrado se logra ahora con 'justify-content: center' en el body */
     }
 
     .card:hover {
-      transform: translateY(-6px);
+      transform: translateY(-6px) scale(1.02);
       box-shadow: 0 0 25px rgba(255,0,150,0.6), 0 0 45px rgba(59,130,246,0.6);
     }
 
     h1 {
-      color: white;
-      font-size: 2rem;
+      color: #fff;
+      font-size: clamp(1.8rem, 4vw, 2.3rem);
       font-weight: 800;
+      text-align: center;
       text-shadow: 0 0 15px #ff80ff, 0 0 25px #60a5fa;
       margin-bottom: 1.5rem;
-      text-align: center;
     }
 
     input {
@@ -90,9 +81,8 @@
       color: white;
       text-align: center;
       outline: none;
-      transition: all 0.2s;
       font-weight: 500;
-      box-sizing: border-box;
+      transition: all 0.2s;
     }
 
     input::placeholder { color: rgba(255,255,255,0.7); }
@@ -114,7 +104,6 @@
       transition: all 0.3s;
       position: relative;
       overflow: hidden;
-      box-sizing: border-box;
     }
 
     button:hover {
@@ -122,7 +111,7 @@
       box-shadow: 0 0 20px currentColor;
     }
 
-    /* Botones con degradados personalizados */
+    /* Botones degradados */
     #loginBtn { background: linear-gradient(90deg, #00c6ff, #0072ff); }
     #regBtn { background: linear-gradient(90deg, #ff00cc, #3333ff); }
     #verifyBtn { background: linear-gradient(90deg, #00ff88, #00b894); }
@@ -142,8 +131,9 @@
     }
 
     p {
-      color: rgba(255,255,255,0.85);
+      color: rgba(255,255,255,0.9);
       text-align: center;
+      font-size: 0.95rem;
     }
 
     .hidden { display: none; }
@@ -151,6 +141,12 @@
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 🔧 Ajuste visual para pantallas pequeñas */
+    @media (max-width: 400px) {
+      body { padding: 15px; }
+      .card { padding: 2rem 1.3rem; border-radius: 18px; }
     }
   </style>
 </head>
