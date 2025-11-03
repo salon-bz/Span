@@ -9,6 +9,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
   <style>
+    /* === TU DISEÑO ORIGINAL (sin tocar) === */
     body {
       background: linear-gradient(135deg, #232526, #414345);
       min-height: 100vh;
@@ -79,12 +80,12 @@
     .modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
     .price-badge { font-size: 1.5rem; font-weight:700; }
 
-    /* HAMBURGER + SIDEBAR STYLES (added) */
+    /* === HAMBURGER + SIDEBAR (DERECHA) === */
     .hamburger {
       position: fixed;
-      left: 18px;
+      right: 18px; /* moved to right */
       top: 18px;
-      z-index: 100;
+      z-index: 120;
       width: 48px;
       height: 48px;
       display: flex;
@@ -99,7 +100,6 @@
     }
     .hamburger:active { transform: scale(.98); }
 
-    /* burger lines */
     .burger {
       width: 22px;
       height: 14px;
@@ -120,7 +120,7 @@
     .burger span:nth-child(2) { top: 6px; }
     .burger span:nth-child(3) { top: 12px; }
 
-    /* when open or scrolled - transform to X */
+    /* open / scroll => X */
     .hamburger.open .burger span:nth-child(1) {
       transform: translateY(6px) rotate(45deg);
     }
@@ -131,35 +131,37 @@
       transform: translateY(-6px) rotate(-45deg);
     }
 
-    /* side menu */
+    /* backdrop */
     .menu-backdrop {
       position: fixed;
       inset: 0;
-      z-index: 90;
+      z-index: 110;
       display: none;
       background: rgba(0,0,0,0.45);
       transition: opacity .22s ease;
     }
+
+    /* side menu slides from RIGHT */
     .side-menu {
       position: fixed;
       top: 0;
-      left: -100%;
+      right: -100%; /* hidden off-screen to right */
       height: 100vh;
       width: 60vw;
       max-width: 520px;
-      z-index: 95;
+      z-index: 115;
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      transition: left .28s cubic-bezier(.2,.9,.2,1);
-      border-radius: 0 12px 12px 0;
+      transition: right .28s cubic-bezier(.2,.9,.2,1);
+      border-radius: 12px 0 0 12px;
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       border: 1px solid rgba(255,255,255,0.06);
       backdrop-filter: blur(14px);
       box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     }
-    .side-menu.open { left: 0; }
+    .side-menu.open { right: 0; }
 
     .menu-user {
       display: flex;
@@ -178,17 +180,29 @@
       background: rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.03);
       transition: transform .12s ease, background .12s ease;
     }
-    .menu-item:hover { transform: translateX(4px); background: rgba(255,255,255,0.03); }
+    .menu-item:hover { transform: translateX(-6px); background: rgba(255,255,255,0.03); }
 
-    /* responsive tweak */
+    /* responsive */
     @media (max-width: 520px) {
-      .side-menu { width: 80vw; max-width: none; }
+      .side-menu { width: 100vw; max-width: none; }
     }
+
+    /* === HIDING main screen controls (we keep markup but hide them visually on main) === */
+    /* the user asked that username, balance, logout, tabs be removed from main screen and placed into menu.
+       So we hide them visually on the main view while preserving the structure (respects your code 100%). */
+    .hide-on-main .user-block,
+    .hide-on-main .header-right,
+    .hide-on-main .tabs {
+      display: none !important;
+    }
+
+    /* keep accessibility for larger screens if needed (optional tweak)
+       If you ever want to show them, remove the class 'hide-on-main' from body via JS. */
   </style>
 </head>
 
-<body class="text-white p-4 md:p-8">
-  <!-- HAMBURGER BUTTON -->
+<body class="text-white p-4 md:p-8 hide-on-main">
+  <!-- HAMBURGER BUTTON (RIGHT) -->
   <div id="hamburgerBtn" class="hamburger" aria-label="Menú">
     <div class="burger">
       <span></span><span></span><span></span>
@@ -228,21 +242,22 @@
     <div class="small-muted text-xs">SociosXIT • Menú</div>
   </aside>
 
-  <!-- ORIGINAL HEADER (UNCHANGED) -->
+  <!-- ORIGINAL HEADER (kept, but user info & logout & tabs hidden from main view by CSS) -->
   <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 p-4 rounded-lg card">
-    <div>
+    <div class="user-block">
       <h1 class="text-2xl font-bold">Bienvenido, <span id="userName" class="text-blue-300"></span></h1>
       <p class="text-sm text-gray-300">Publicaciones disponibles para ti</p>
       <p class="text-lg mt-2">💰 Saldo: <span id="userBalance" class="font-bold text-green-400">$0.00</span> USD</p>
     </div>
-    <div class="mt-4 md:mt-0 flex items-center gap-3">
+
+    <div class="header-right">
       <button id="logoutBtn" class="btn-logout font-semibold py-2 px-4 rounded-lg transition-transform hover:scale-105">
         Cerrar Sesión
       </button>
     </div>
   </header>
 
-  <!-- pestañas -->
+  <!-- pestañas (hidden on main view; accessible via menu) -->
   <div class="tabs">
     <button id="tabPublicaciones" class="tab-btn active">📦 Publicaciones</button>
     <button id="tabKeys" class="tab-btn">🔑 Mis Keys</button>
@@ -378,16 +393,14 @@
       window.location.href = "index.html";
     };
 
-    // menu interactions
+    // menu interactions (open from RIGHT)
     function openMenu() {
       sideMenu.classList.add("open");
       menuBackdrop.style.display = "block";
-      // small delay for backdrop opacity (simple fade)
       setTimeout(()=> menuBackdrop.style.opacity = "1", 10);
       hamburgerBtn.classList.add("open");
       sideMenu.setAttribute("aria-hidden", "false");
-      // set menu balance (in case)
-      // menuUserBalance will be updated by loadUserBalance listener too
+      // menuUserBalance updated by loadUserBalance listener
     }
     function closeMenu() {
       sideMenu.classList.remove("open");
