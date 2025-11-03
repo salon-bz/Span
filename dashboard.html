@@ -261,8 +261,11 @@
     }
 
     /* === HIDING main screen controls (we keep markup but hide them visually on main) === */
-    /* REMOVIDO: Se hace visible el header y la barra de progreso */
-    /* .hide-on-main .user-block, .hide-on-main .header-right, .hide-on-main .tabs { display: none !important; } */
+    .hide-on-main .user-block,
+    .hide-on-main .header-right,
+    .hide-on-main .tabs {
+      display: none !important;
+    }
 
     /* small neon touches for cards */
     .card.rounded-xl { border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
@@ -271,7 +274,7 @@
     /* Make buy CTA look neon inside the card */
     .btn-buy .py-2 { color: #041020; }
 
-    /* === ESTILOS PARA BARRA DE GASTOS Y NIVEL === */
+    /* === NUEVOS ESTILOS PARA BARRA DE GASTOS Y NIVEL === */
     .progress-bar {
       height: 8px;
       border-radius: 999px;
@@ -294,17 +297,11 @@
     /* Estilos para nivel VIP */
     .level-vip-text { color: var(--level-vip); text-shadow: 0 0 12px rgba(0,240,255,0.3); }
     /* Estilos para nivel Premium */
-    .level-premium-text { color: var(--level-pink); text-shadow: 0 0 12px rgba(255,77,240,0.3); }
-
-    /* Estilo para el contenedor principal de la barra en el dashboard */
-    .main-level-bar {
-        background: rgba(255,255,255,0.05);
-        border: 1px solid rgba(255,255,255,0.08);
-        box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-    }
+    .level-premium-text { color: var(--level-premium); text-shadow: 0 0 12px rgba(255,77,240,0.3); }
   </style>
 </head>
-<body class="text-white p-4 md:p-8"> <canvas id="particles"></canvas>
+<body class="text-white p-4 md:p-8 hide-on-main">
+  <canvas id="particles"></canvas>
 
   <div class="app-root">
   <div id="hamburgerBtn" class="hamburger" aria-label="Menú">
@@ -326,13 +323,13 @@
     
     <div class="card p-3 rounded-lg border-white/5">
         <div class="flex justify-between items-center mb-1">
-            <div id="menuLevelText" class="level-label">Nivel: Base</div>
-            <div id="menuLevelProgressText" class="small-muted text-xs">$0.00 / $50.00</div>
+            <div id="userLevelText" class="level-label">Nivel: Base</div>
+            <div id="levelProgressText" class="small-muted text-xs">$0.00 / $50.00</div>
         </div>
         <div class="progress-bar">
-            <div id="menuLevelProgressBar" class="progress-fill" style="width: 0%;"></div>
+            <div id="levelProgressBar" class="progress-fill" style="width: 0%;"></div>
         </div>
-        <div id="menuLevelNextGoal" class="small-muted text-xs mt-1">
+        <div id="levelNextGoal" class="small-muted text-xs mt-1">
             Próx. nivel (VIP): $50.00 (10% Desc.)
         </div>
     </div>
@@ -376,19 +373,7 @@
     <button id="tabPublicaciones" class="tab-btn active neon-btn">📦 Publicaciones</button>
     <button id="tabKeys" class="tab-btn neon-btn">🔑 Mis Keys</button>
   </div>
-  
-  <div id="mainLevelBar" class="main-level-bar p-4 rounded-lg mb-6 card">
-      <div class="flex justify-between items-center mb-1">
-          <div id="userLevelText" class="level-label">Nivel: Base</div>
-          <div id="levelProgressText" class="small-muted text-xs">$0.00 / $50.00</div>
-      </div>
-      <div class="progress-bar">
-          <div id="levelProgressBar" class="progress-fill" style="width: 0%;"></div>
-      </div>
-      <div id="levelNextGoal" class="small-muted text-xs mt-1">
-          Próx. nivel (VIP): $50.00 (10% Desc.)
-      </div>
-  </div>
+
   <main id="publicationsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></main>
 
   <section id="myKeysContainer" class="hidden">
@@ -576,18 +561,12 @@
     const keyCopyBtn = document.getElementById("keyCopyBtn");
     const keyCloseBtn = document.getElementById("keyCloseBtn");
 
-    // NEW elements for level/progress bar (MAIN SCREEN)
+    // NEW elements for level/progress bar
     const finalPriceDisplay = document.getElementById("finalPriceDisplay"); // Added to modal
     const userLevelText = document.getElementById("userLevelText");
     const levelProgressText = document.getElementById("levelProgressText");
     const levelProgressBar = document.getElementById("levelProgressBar");
     const levelNextGoal = document.getElementById("levelNextGoal");
-    
-    // NEW elements for level/progress bar (SIDE MENU)
-    const menuLevelText = document.getElementById("menuLevelText");
-    const menuLevelProgressText = document.getElementById("menuLevelProgressText");
-    const menuLevelProgressBar = document.getElementById("menuLevelProgressBar");
-    const menuLevelNextGoal = document.getElementById("menuLevelNextGoal");
 
 
     // Tabs (existing)
@@ -818,7 +797,7 @@
     }
 
 
-    // --- Level and Discount Logic ---
+    // --- NEW: Level and Discount Logic ---
     const LEVEL_VIP_SPEND = 50;
     const LEVEL_PREMIUM_SPEND = 150;
     let userTotalSpending = 0; // Global variable to store current spending
@@ -857,7 +836,7 @@
     }
 
     /**
-     * Updates the level bar UI (main and menu).
+     * Updates the level bar UI.
      * @param {number} spending - The user's total accumulated spending.
      */
     function updateLevelUI(spending) {
@@ -865,43 +844,36 @@
         
         userTotalSpending = spending; // Update global spending
 
-        // --- Logic for progress calculation ---
+        userLevelText.textContent = `Nivel: ${level}`;
+        userLevelText.className = `level-label ${level === 'VIP' ? 'level-vip-text' : level === 'Premium' ? 'level-premium-text' : ''}`;
+        
+        levelNextGoal.textContent = goalLabel;
+        
         let percentage = 0;
-        let displayGoal = LEVEL_VIP_SPEND; // Default to first level
+        let progressTo = LEVEL_VIP_SPEND; // Default to first level
         
         if (spending < LEVEL_VIP_SPEND) {
-            displayGoal = LEVEL_VIP_SPEND;
-            percentage = (spending / displayGoal) * 100;
+            progressTo = LEVEL_VIP_SPEND;
+            percentage = (spending / progressTo) * 100;
+            levelProgressText.textContent = `$${spending.toFixed(2)} / $${LEVEL_VIP_SPEND.toFixed(2)}`;
         } else if (spending < LEVEL_PREMIUM_SPEND) {
-            // Progress from $50 to $150
-            displayGoal = LEVEL_PREMIUM_SPEND;
-            percentage = (spending / displayGoal) * 100;
+            // Progress is from VIP to Premium, on a scale of 100 (150-50)
+            progressTo = LEVEL_PREMIUM_SPEND;
+            const progressRange = LEVEL_PREMIUM_SPEND - LEVEL_VIP_SPEND; // 100
+            const amountInLevel = spending - LEVEL_VIP_SPEND;
+            percentage = ((LEVEL_VIP_SPEND / progressTo) * 100) + ((amountInLevel / progressRange) * (100 - (LEVEL_VIP_SPEND / progressTo) * 100));
+            
+            // Simplified: calculate progress based on total goal (150)
+            percentage = (spending / LEVEL_PREMIUM_SPEND) * 100;
+            levelProgressText.textContent = `$${spending.toFixed(2)} / $${LEVEL_PREMIUM_SPEND.toFixed(2)}`;
         } else {
             // Max level reached
-            displayGoal = LEVEL_PREMIUM_SPEND;
             percentage = 100;
+            levelProgressText.textContent = `¡Nivel Máximo! ($${spending.toFixed(2)})`;
         }
-        
-        const progressText = (percentage < 100) ? `$${spending.toFixed(2)} / $${displayGoal.toFixed(2)}` : `¡Nivel Máximo! ($${spending.toFixed(2)})`;
-        const levelClass = `${level === 'VIP' ? 'level-vip-text' : level === 'Premium' ? 'level-premium-text' : ''}`;
-        const finalPercentage = Math.min(percentage, 100).toFixed(2);
 
-
-        // --- Update MAIN UI ---
-        userLevelText.textContent = `Nivel: ${level}`;
-        userLevelText.className = `level-label ${levelClass}`;
-        levelNextGoal.textContent = goalLabel;
-        levelProgressText.textContent = progressText;
-        levelProgressBar.style.width = `${finalPercentage}%`;
+        levelProgressBar.style.width = `${Math.min(percentage, 100).toFixed(2)}%`;
         levelProgressBar.style.backgroundColor = progressColor;
-
-        // --- Update MENU UI ---
-        menuLevelText.textContent = `Nivel: ${level}`;
-        menuLevelText.className = `level-label ${levelClass}`;
-        menuLevelNextGoal.textContent = goalLabel;
-        menuLevelProgressText.textContent = progressText;
-        menuLevelProgressBar.style.width = `${finalPercentage}%`;
-        menuLevelProgressBar.style.backgroundColor = progressColor;
     }
 
     /**
@@ -916,10 +888,12 @@
             let totalSpent = 0;
             if (purchases) {
                 Object.values(purchases).forEach(p => {
-                    // We sum the price ACTUALLY PAID (p.price) to calculate the spending level
-                    totalSpent += parseFloat(p.price || 0); 
+                    totalSpent += parseFloat(p.price || 0); // Price saved in history is the ACTUAL PRICE PAID
                 });
             }
+            // Use original price from purchase for calculation to avoid double counting discounts
+            // Sum all "price" fields from the purchase history (which is the actual amount spent).
+            // NOTE: This assumes 'price' in purchases history reflects the amount PAID.
             
             updateLevelUI(totalSpent);
         });
@@ -949,7 +923,9 @@
             `;
         } else {
             finalPriceDisplay.textContent = `Precio Final: $${finalPrice.toFixed(2)} USD`;
-            finalPriceDisplay.className = "text-xl font-bold mt-2 text-neon-yellow";
+            finalPriceDisplay.classList.remove("text-neon-green");
+            finalPriceDisplay.classList.remove("text-xl");
+            finalPriceDisplay.classList.add("text-neon-yellow");
         }
 
         // Store the final price to use in the comprarKey function
