@@ -8,110 +8,21 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
-    }
-
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #ff0080, #7928ca, #2af599);
-      background-size: 400% 400%;
-      animation: bgMove 10s ease infinite;
-      margin: 0;
-    }
-
-    @keyframes bgMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    .container {
-      width: 90%;
-      max-width: 400px;
-      background: rgba(255,255,255,0.15);
-      border-radius: 20px;
-      overflow: hidden;
-      backdrop-filter: blur(15px);
-      border: 1px solid rgba(255,255,255,0.25);
-      box-shadow: 0 10px 30px rgba(255,255,255,0.3);
-      transition: all 0.5s ease;
-      padding: 2rem;
-      text-align: center;
-      color: white;
-    }
-
-    h2 {
-      color: white;
-      margin-bottom: 1rem;
-      font-size: 1.8rem;
-      text-shadow: 0 0 10px #ff80ff, 0 0 20px #60a5fa;
-    }
-
-    input {
-      padding: 12px;
-      margin: 8px 0;
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 10px;
-      width: 100%;
-      background: rgba(255,255,255,0.15);
-      color: white;
-      text-align: center;
-      outline: none;
-      transition: 0.3s;
-    }
-
-    input::placeholder {
-      color: rgba(255,255,255,0.7);
-    }
-
-    input:focus {
-      border-color: #ff80ff;
-      box-shadow: 0 0 12px #ff80ff;
-    }
-
-    button {
-      background: linear-gradient(90deg, #00c6ff, #0072ff);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: 0.3s;
-      width: 100%;
-      font-weight: 600;
-    }
-
-    button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 20px currentColor;
-    }
-
-    p {
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-
-    a {
-      color: #ffe0ff;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
+    /* --- Mismo estilo que tenías --- */
+    * { box-sizing: border-box; font-family: "Poppins", sans-serif; }
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #ff0080, #7928ca, #2af599); background-size: 400% 400%; animation: bgMove 10s ease infinite; margin: 0; }
+    @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+    .container { width: 90%; max-width: 400px; background: rgba(255,255,255,0.15); border-radius: 20px; overflow: hidden; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.25); box-shadow: 0 10px 30px rgba(255,255,255,0.3); transition: all 0.5s ease; padding: 2rem; text-align: center; color: white; }
+    h2 { color: white; margin-bottom: 1rem; font-size: 1.8rem; text-shadow: 0 0 10px #ff80ff, 0 0 20px #60a5fa; }
+    input { padding: 12px; margin: 8px 0; border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; width: 100%; background: rgba(255,255,255,0.15); color: white; text-align: center; outline: none; transition: 0.3s; }
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    input:focus { border-color: #ff80ff; box-shadow: 0 0 12px #ff80ff; }
+    button { background: linear-gradient(90deg, #00c6ff, #0072ff); color: white; border: none; padding: 12px; border-radius: 10px; cursor: pointer; margin-top: 10px; transition: 0.3s; width: 100%; font-weight: 600; }
+    button:hover { transform: scale(1.03); box-shadow: 0 0 20px currentColor; }
+    p { margin-top: 1rem; font-size: 0.9rem; }
+    a { color: #ffe0ff; text-decoration: none; font-weight: 600; cursor: pointer; }
     .hidden { display: none; }
-
-    @media (max-width: 480px) {
-      .container {
-        width: 95%;
-        border-radius: 15px;
-      }
-    }
+    @media (max-width: 480px) { .container { width: 95%; border-radius: 15px; } }
   </style>
 </head>
 <body>
@@ -133,15 +44,6 @@
       <button id="regBtn">Registrarse</button>
       <p>¿Ya tienes cuenta? <a id="goLogin">Inicia sesión</a></p>
     </div>
-
-    <!-- VERIFICACIÓN -->
-    <div id="verifyView" class="hidden">
-      <h2>Verificar Cuenta</h2>
-      <p>Pide tu código al bot de Telegram:</p>
-      <input type="text" id="verifyCode" placeholder="Código de 6 dígitos" />
-      <button id="goBotBtn" style="background:linear-gradient(90deg,#ffb100,#ff5e00)">Pedir código</button>
-      <button id="verifyBtn" style="background:linear-gradient(90deg,#00ff88,#00b894)">Verificar</button>
-    </div>
   </div>
 
   <script>
@@ -158,43 +60,38 @@
     const db = firebase.database();
     const usersRef = db.ref("users");
 
-    const views = ["loginView", "registerView", "verifyView"];
+    const views = ["loginView", "registerView"];
     const show = (id) => views.forEach(v => document.getElementById(v).classList.toggle("hidden", v !== id));
 
     document.getElementById("goRegister").onclick = () => show("registerView");
     document.getElementById("goLogin").onclick = () => show("loginView");
+
+    // --- FUNCION PARA DESCARGAR CREDENCIALES ---
+    function descargarCredenciales(usuario, password) {
+      const contenido = `¡Bienvenido a SociosXIT!\n\nUsuario: ${usuario}\nContraseña: ${password}\n\nGuarda este archivo en un lugar seguro.`;
+      const blob = new Blob([contenido], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "credenciales.txt";
+      link.click();
+    }
 
     // --- REGISTRO ---
     document.getElementById("regBtn").onclick = async () => {
       const user = regUser.value.trim();
       const pass = regPass.value.trim();
       if (!user || !pass) return alert("Completa todos los campos");
+
       const snap = await usersRef.child(user).once("value");
       if (snap.exists()) return alert("El usuario ya existe");
-      await usersRef.child(user).set({ password: pass, verified: false });
-      alert("Cuenta creada correctamente. Ahora verifica tu código.");
-      show("verifyView");
-    };
 
-    // --- PEDIR CÓDIGO ---
-    document.getElementById("goBotBtn").onclick = () => {
-      window.open("http://t.me/Socios66_bot", "_blank");
-      goBotBtn.disabled = true;
-      goBotBtn.innerText = "Bot abierto ✅";
-    };
+      await usersRef.child(user).set({ password: pass, verified: true });
 
-    // --- VERIFICAR CÓDIGO ---
-    document.getElementById("verifyBtn").onclick = async () => {
-      const code = verifyCode.value.trim();
-      const user = regUser.value.trim() || loginUser.value.trim();
-      if (!code || !user) return alert("Faltan datos");
-      const codeRef = db.ref("codes/available/" + code);
-      const snap = await codeRef.once("value");
-      if (!snap.exists()) return alert("Código inválido o usado");
-      await codeRef.remove();
-      await usersRef.child(user).update({ verified: true });
-      sessionStorage.setItem("sociosxit_user", user);
-      window.location.href = "dashboard.html";
+      // DESCARGAR AUTOMATICAMENTE EL TXT
+      descargarCredenciales(user, pass);
+
+      alert("Cuenta creada correctamente. Se descargó tu archivo de credenciales.");
+      show("loginView");
     };
 
     // --- LOGIN ---
@@ -202,9 +99,10 @@
       const user = loginUser.value.trim();
       const pass = loginPass.value.trim();
       if (!user || !pass) return alert("Completa todos los campos");
+
       const snap = await usersRef.child(user).once("value");
       if (!snap.exists() || snap.val().password !== pass) return alert("Datos incorrectos");
-      if (!snap.val().verified) return show("verifyView");
+
       sessionStorage.setItem("sociosxit_user", user);
       window.location.href = "dashboard.html";
     };
