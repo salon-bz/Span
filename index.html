@@ -22,9 +22,6 @@
     a { color: #ffe0ff; text-decoration: none; font-weight: 600; cursor: pointer; }
     .hidden { display: none; }
     @media (max-width: 480px) { .container { width: 95%; border-radius: 15px; } }
-
-    /* MODAL */
-    @keyframes mostrarModal { 0% { transform:scale(0.6); opacity:0; } 100% { transform:scale(1); opacity:1; } }
   </style>
 </head>
 <body>
@@ -48,52 +45,6 @@
     </div>
   </div>
 
-  <!-- MODAL DE CREDENCIALES -->
-  <div id="modalCredenciales" class="hidden" style="
-    position: fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background: rgba(0,0,0,0.6);
-    display:flex; justify-content:center; align-items:center;
-    z-index: 9999;">
-    
-    <div style="
-      background: linear-gradient(135deg,#3a0ca3,#7209b7,#f72585);
-      padding: 25px;
-      width: 85%;
-      max-width: 380px;
-      border-radius: 20px;
-      color:white;
-      text-align:center;
-      box-shadow: 0 0 25px rgba(255,255,255,0.4);
-      animation: mostrarModal 0.5s ease;">
-      
-      <h2 style="margin-bottom:10px; font-size:1.5rem; text-shadow:0 0 10px white;">
-        ¡Bienvenido, nuevo socio! 🎉
-      </h2>
-
-      <p style="font-size:1rem; line-height:1.4rem;">
-        Tu información se está descargando automáticamente.<br><br>
-        <b>Por favor guarda ese archivo en un lugar seguro</b> mientras el desarrollador implementa una seguridad más avanzada.
-      </p>
-
-      <button id="cerrarModalBtn" style="
-        margin-top:20px;
-        padding:10px 20px;
-        background:linear-gradient(90deg,#00f5d4,#00bbf9);
-        border:none;
-        border-radius:12px;
-        color:black;
-        font-weight:bold;
-        cursor:pointer;
-        width:100%;
-        box-shadow:0 0 10px rgba(255,255,255,0.6);
-        transition:0.3s;">
-        Entendido ✔
-      </button>
-    </div>
-  </div>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
@@ -114,14 +65,10 @@
     document.getElementById("goRegister").onclick = () => show("registerView");
     document.getElementById("goLogin").onclick = () => show("loginView");
 
-    // --- MODAL ---
-    const modal = document.getElementById("modalCredenciales");
-    const cerrarModalBtn = document.getElementById("cerrarModalBtn");
-    cerrarModalBtn.onclick = () => modal.classList.add("hidden");
-
     // --- FUNCION PARA DESCARGAR CREDENCIALES ---
     function descargarCredenciales(usuario, password) {
-      const contenido = `¡Bienvenido a SociosXIT!\n\nUsuario: ${usuario}\nContraseña: ${password}\n\nGuarda este archivo en un lugar seguro.`;
+      const fecha = new Date();
+      const contenido = `🎉 Bienvenido a SociosXIT!\n\nUsuario: ${usuario}\nContraseña: ${password}\nFecha de registro: ${fecha.toLocaleString()}\n\nPor favor, guarda este archivo en un lugar seguro mientras el desarrollador implementa mayor seguridad en la plataforma.`;
       const blob = new Blob([contenido], { type: "text/plain" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -140,13 +87,11 @@
 
       await usersRef.child(user).set({ password: pass, verified: true });
 
-      // DESCARGAR TXT SOLO AL REGISTRARSE
+      // DESCARGAR AUTOMATICAMENTE EL TXT
       descargarCredenciales(user, pass);
 
-      // MOSTRAR MODAL SOLO AL REGISTRARSE
-      modal.classList.remove("hidden");
+      alert("🎉 Bienvenido a ser socio.\n\nTu información de acceso se descargará automáticamente.\n\nPor favor, guarda ese archivo en un lugar seguro mientras el desarrollador implementa mayor seguridad en la plataforma.");
 
-      // VOLVER AL LOGIN
       show("loginView");
     };
 
