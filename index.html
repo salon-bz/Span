@@ -8,7 +8,6 @@
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
 
   <style>
-    /* --- Mismo estilo que tenías --- */
     * { box-sizing: border-box; font-family: "Poppins", sans-serif; }
     body { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #ff0080, #7928ca, #2af599); background-size: 400% 400%; animation: bgMove 10s ease infinite; margin: 0; }
     @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -68,7 +67,7 @@
 
     // --- FUNCION PARA DESCARGAR CREDENCIALES ---
     function descargarCredenciales(usuario, password) {
-      const contenido = `¡Bienvenido a SociosXIT!\n\nUsuario: ${usuario}\nContraseña: ${password}\n\nGuarda este archivo en un lugar seguro.`;
+      const contenido = `¡Bienvenido a SociosXIT!\n\nUsuario: ${usuario}\nContraseña: ${password}\n\nGuarda este archivo en un lugar seguro mientras el desarrollador pone la página con más seguridad.`;
       const blob = new Blob([contenido], { type: "text/plain" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -90,7 +89,8 @@
       // DESCARGAR AUTOMATICAMENTE EL TXT
       descargarCredenciales(user, pass);
 
-      alert("Cuenta creada correctamente. Se descargó tu archivo de credenciales.");
+      alert("¡Bienvenido a ser socio! 🎉\n\nTu información se ha descargado automáticamente.\nPor favor guarda ese archivo en un lugar seguro mientras el desarrollador pone la página con más seguridad.");
+
       show("loginView");
     };
 
