@@ -6,8 +6,9 @@
   <title>SociosXIT - Acceso</title>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
-
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Estilos base (Mantenidos) */
     * { box-sizing: border-box; font-family: "Poppins", sans-serif; }
     body { display: flex; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #ff0080, #7928ca, #2af599); background-size: 400% 400%; animation: bgMove 10s ease infinite; margin: 0; }
     @keyframes bgMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
@@ -22,11 +23,24 @@
     a { color: #ffe0ff; text-decoration: none; font-weight: 600; cursor: pointer; }
     .hidden { display: none; }
     @media (max-width: 480px) { .container { width: 95%; border-radius: 15px; } }
+
+    /* --- ESTILOS DEL MODAL DE ÉXITO (NUEVOS) --- */
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal-content { background: #1c1c1c; border-radius: 15px; width: 90%; max-width: 450px; padding: 30px; text-align: center; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); border: 2px solid #2af599; transform: scale(0.8); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; }
+    .modal-overlay.show .modal-content { transform: scale(1); opacity: 1; }
+    .modal-icon { font-size: 4rem; color: #2af599; margin-bottom: 15px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+    .modal-title { font-size: 1.8rem; color: #fff; margin-bottom: 10px; font-weight: 700; }
+    .modal-body { color: #ccc; margin-bottom: 25px; line-height: 1.5; text-align: left; background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 10px; border-left: 5px solid #ff0080; }
+    .modal-body strong { color: #2af599; font-weight: 600; }
+    .modal-button { background: linear-gradient(90deg, #ff0080, #7928ca); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; width: 100%; }
+    .modal-button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 0, 128, 0.5); }
+    /* Fin Estilos Modal */
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- LOGIN -->
     <div id="loginView">
       <h2>Iniciar Sesión</h2>
       <input type="text" id="loginUser" placeholder="Usuario" />
@@ -35,7 +49,6 @@
       <p>¿No tienes cuenta? <a id="goRegister">Regístrate</a></p>
     </div>
 
-    <!-- REGISTRO -->
     <div id="registerView" class="hidden">
       <h2>Crear Cuenta</h2>
       <input type="text" id="regUser" placeholder="Usuario" />
@@ -45,6 +58,18 @@
     </div>
   </div>
 
+  <div id="successModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-icon">🎉</div>
+      <div class="modal-title">¡Bienvenido a ser socio!</div>
+      <div class="modal-body">
+        <p>✅ Tu cuenta ha sido creada con **éxito**.</p>
+        <p>💾 Tu información de acceso se descargó **automáticamente** en el archivo `credenciales.txt`.</p>
+        <p>⚠️ Por favor, **guarda ese archivo en un lugar seguro** mientras el desarrollador implementa mayor seguridad en la plataforma.</p>
+      </div>
+      <button class="modal-button" id="closeModalBtn">Entendido</button>
+    </div>
+  </div>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAcbewB4Orpx4JyaXq141GgUidJbXUrEnY",
@@ -64,6 +89,27 @@
 
     document.getElementById("goRegister").onclick = () => show("registerView");
     document.getElementById("goLogin").onclick = () => show("loginView");
+
+    // Función para mostrar/ocultar el modal
+    const successModal = document.getElementById("successModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    const showModal = () => {
+        successModal.classList.remove("hidden");
+        // Pequeño retraso para asegurar que la clase `show` se aplica después de eliminar `hidden`
+        setTimeout(() => successModal.classList.add("show"), 10); 
+    };
+
+    const hideModal = () => {
+        successModal.classList.remove("show");
+        // Pequeño retraso para que la transición de opacidad y escala se complete antes de ocultar
+        setTimeout(() => {
+            successModal.classList.add("hidden");
+            show("loginView"); // Volver a la vista de login al cerrar el modal
+        }, 300); 
+    };
+
+    closeModalBtn.onclick = hideModal;
 
     // --- FUNCION PARA DESCARGAR CREDENCIALES ---
     function descargarCredenciales(usuario, password) {
@@ -87,15 +133,16 @@
 
       await usersRef.child(user).set({ password: pass, verified: true });
 
-      // DESCARGAR AUTOMATICAMENTE EL TXT
+      // 1. DESCARGAR AUTOMATICAMENTE EL TXT
       descargarCredenciales(user, pass);
 
-      alert("🎉 Bienvenido a ser socio.\n\nTu información de acceso se descargará automáticamente.\n\nPor favor, guarda ese archivo en un lugar seguro mientras el desarrollador implementa mayor seguridad en la plataforma.");
-
-      show("loginView");
+      // 2. MOSTRAR EL NUEVO MODAL LLAMATIVO EN LUGAR DEL ALERT
+      showModal(); 
+      
+      // La vista de login ahora se muestra al cerrar el modal (dentro de hideModal)
     };
 
-    // --- LOGIN ---
+    // --- LOGIN (Mantenido) ---
     document.getElementById("loginBtn").onclick = async () => {
       const user = loginUser.value.trim();
       const pass = loginPass.value.trim();
