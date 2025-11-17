@@ -1,0 +1,294 @@
+/* === TU DISEÑO ORIGINAL (sin tocar la lógica) === */
+:root{
+  --neon-cyan: #00f0ff;
+  --neon-pink: #ff4df0;
+  --neon-green: #00ff88;
+  --neon-yellow: #ffd460;
+  --glass-bg: rgba(255,255,255,0.04);
+  /* COLORES PARA LA BARRA DE PROGRESO */
+  --level-base: rgba(255,255,255,0.1);
+  --level-vip: #00f0ff; /* VIP: Cian */
+  --level-premium: #ff4df0; /* Premium: Rosa */
+}
+html,body{height:100%;}
+
+body {
+  background: linear-gradient(135deg, #0f0812 10%, #141225 50%, #1b1730 100%);
+  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+  color: #fff;
+}
+
+/* particles canvas sits behind everything */
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+}
+
+/* content sits above particles */
+.app-root {
+  position: relative;
+  z-index: 5;
+}
+
+.card {
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* NEON BUTTONS & FLOATING */
+@keyframes floaty {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+  100% { transform: translateY(0); }
+}
+
+.neon-btn {
+  transition: transform .18s ease, box-shadow .18s ease;
+  animation: floaty 3.8s ease-in-out infinite;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.35), 0 0 18px rgba(0, 255, 200, 0.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+}
+
+.btn-show {
+  background: linear-gradient(90deg, rgba(0,240,255,0.16), rgba(0,122,255,0.14));
+  color: var(--neon-cyan);
+  box-shadow: 0 6px 26px rgba(0,240,255,0.06), 0 0 14px rgba(0,240,255,0.12);
+}
+
+.btn-buy {
+  background: linear-gradient(90deg, rgba(0,255,136,0.12), rgba(0,184,148,0.14));
+  color: var(--neon-green);
+  box-shadow: 0 8px 30px rgba(0,255,136,0.06), 0 0 20px rgba(0,255,136,0.08);
+}
+
+.btn-logout {
+  background: linear-gradient(90deg, rgba(255,65,108,0.12), rgba(255,75,43,0.14));
+  color: var(--neon-pink);
+  box-shadow: 0 8px 30px rgba(255,65,108,0.06), 0 0 20px rgba(255,65,108,0.08);
+}
+
+/* neon text glows */
+.text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0,240,255,0.18); }
+.text-neon-pink { color: var(--neon-pink); text-shadow: 0 0 10px rgba(255,77,240,0.14); }
+.text-neon-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,136,0.12); }
+
+/* pestañas */
+.tabs { display:flex; gap:8px; margin-bottom:12px; z-index:6; }
+.tab-btn {
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.95);
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform .12s ease, box-shadow .12s ease;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+}
+.tab-btn.active {
+  background: linear-gradient(90deg, rgba(0,240,255,0.14), rgba(59,130,246,0.06));
+  color: #061220;
+  box-shadow: 0 10px 45px rgba(0,240,255,0.06), 0 0 20px rgba(0,240,255,0.06);
+}
+
+/* recuadro key */
+.key-box {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(0,255,136,0.12);
+  padding: 12px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+.small-muted { color: rgba(255,255,255,0.75); font-size:0.9rem; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace; }
+
+/* modal */
+.modal-backdrop {
+  position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.55); z-index: 1000;
+}
+.modal {
+  width: 92%;
+  max-width: 520px;
+  border-radius: 12px;
+  padding: 18px;
+  background: rgba(10,8,20,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(8px);
+  color: white;
+  box-shadow: 0 10px 60px rgba(0,0,0,0.7), 0 0 40px rgba(0,240,255,0.04) inset;
+}
+.modal .actions { display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+.price-badge { font-size: 1.5rem; font-weight:700; color: var(--neon-yellow); text-shadow:0 0 12px rgba(255,212,96,0.12); }
+
+/* === HAMBURGER + SIDEBAR (DERECHA) === */
+.hamburger {
+  position: fixed;
+  right: 18px; /* moved to right */
+  top: 18px;
+  z-index: 120;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+}
+.hamburger:active { transform: scale(.98); }
+
+.burger {
+  width: 24px;
+  height: 16px;
+  position: relative;
+  transition: all .25s ease;
+}
+.burger span {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: white;
+  display: block;
+  border-radius: 2px;
+  transition: transform .25s ease, opacity .18s ease;
+  box-shadow: 0 0 8px rgba(255,255,255,0.06);
+}
+.burger span:nth-child(1) { top: 0; }
+.burger span:nth-child(2) { top: 7px; }
+.burger span:nth-child(3) { top: 14px; }
+
+/* open / scroll => X */
+.hamburger.open .burger span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+  background: var(--neon-pink);
+  box-shadow: 0 0 18px rgba(255,77,240,0.18);
+}
+.hamburger.open .burger span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open .burger span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+  background: var(--neon-cyan);
+  box-shadow: 0 0 18px rgba(0,240,255,0.18);
+}
+
+/* backdrop */
+.menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: none;
+  background: rgba(0,0,0,0.55);
+  transition: opacity .22s ease;
+}
+
+/* side menu slides from RIGHT */
+.side-menu {
+  position: fixed;
+  top: 0;
+  right: -100%; /* hidden off-screen to right */
+  height: 100vh;
+  width: 60vw;
+  max-width: 520px;
+  z-index: 115;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: right .28s cubic-bezier(.2,.9,.2,1);
+  border-radius: 12px 0 0 12px;
+  background: linear-gradient(180deg, rgba(16,12,28,0.75), rgba(16,12,28,0.6));
+  border: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 60px rgba(0,0,0,0.7);
+}
+.side-menu.open { right: 0; }
+
+.menu-user {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.menu-user .avatar {
+  width: 56px; height: 56px; border-radius: 12px;
+  background: linear-gradient(90deg,var(--neon-cyan),var(--neon-pink));
+  display:flex; align-items:center; justify-content:center; font-weight:700; color:#071122;
+  box-shadow: 0 8px 30px rgba(0,240,255,0.06), 0 0 28px rgba(255,77,240,0.06);
+  font-size:18px;
+}
+.menu-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px; border-radius:12px; cursor:pointer;
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.4);
+}
+.menu-item:hover {
+  transform: translateX(-6px);
+  background: linear-gradient(90deg, rgba(0,240,255,0.03), rgba(255,77,240,0.02));
+  box-shadow: 0 10px 45px rgba(0,240,255,0.04), 0 0 18px rgba(255,77,240,0.03);
+}
+
+/* responsive */
+@media (max-width: 520px) {
+  .side-menu { width: 80vw; max-width: none; }
+}
+
+/* === HIDING main screen controls (we keep markup but hide them visually on main) === */
+/* NOTE: Removed .hide-on-main .tabs from here so the tabs remain visible on main screen. */
+.hide-on-main .user-block,
+.hide-on-main .header-right {
+  display: none !important;
+}
+
+/* small neon touches for cards */
+.card.rounded-xl { border-radius: 14px; box-shadow: 0 8px 40px rgba(0,0,0,0.6); }
+.card .text-2xl { text-shadow: 0 0 12px rgba(0,0,0,0.2); }
+
+/* Make buy CTA look neon inside the card */
+.btn-buy .py-2 { color: #041020; }
+
+/* === NUEVOS ESTILOS PARA BARRA DE GASTOS Y NIVEL === */
+.progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--level-base);
+  overflow: hidden;
+  margin-top: 4px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.3) inset;
+}
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 0.4s ease-out, background 0.4s ease;
+  background-color: var(--level-base); /* Base, se actualiza por JS */
+}
+.level-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-shadow: 0 0 8px rgba(0,0,0,0.4);
+}
+/* Estilos para nivel VIP */
+.level-vip-text { color: var(--level-vip); text-shadow: 0 0 12px rgba(0,240,255,0.3); }
+/* Estilos para nivel Premium */
+.level-premium-text { color: var(--level-premium); text-shadow: 0 0 12px rgba(255,77,240,0.3); }
+
+/* Estilo para la barra de progreso en la pantalla principal (opcional: añadir margen inferior para separarla de los productos) */
+#mainLevelBar {
+  margin-bottom: 24px;
+}
